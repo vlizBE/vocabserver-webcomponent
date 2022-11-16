@@ -87,63 +87,105 @@ function getPaginationMetadata(pageNumber, size, total) {
   return pagination;
 }
 
+function mapJoin(f, list, delimiter = "") {
+  return list.map(f).join(delimiter);
+}
+
+const Template = {
+  html: function (props) {
+    return `
+      <div>
+      <input id="search-input" value="${props?.query ?? ""}" />
+      ${
+        props?.searchResults?.length > 0
+          ? this.renderResults(props.searchResults)
+          : ""
+      }
+      ${props?.searchResults?.length === 0 ? this.renderPlaceholder() : ""}
+      </div>`;
+  },
+  css: function (props) {
+    return "";
+  },
+  renderRow: function ({ uri, prefLabel, schemePrefLabel }) {
+    return `
+    <tr>
+      <td>${uri}</td>
+      <td>${prefLabel}</td>
+      <td>${schemePrefLabel}</td>
+    </tr>`;
+  },
+  renderResults: function (results) {
+    return `
+      <table>
+        <thead>
+          <tr>
+            <th>URI</th>
+            <th>prefLabel</th>
+            <th>inScheme</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${mapJoin(this.renderRow, results)}
+        </tbody>
+      </table>`;
+  },
+  renderPlaceholder: () => `
+  <p>No results found.</p>
+  `,
+  render: function (props) {
+    return `${this.html(props)}
+            ${this.css(props)}`;
+  },
+  mapDOM(scope) {
+    return {
+      searchInput: scope.querySelector("#search-input"),
+    };
+  },
+};
+
 customElements.define(
   "vocab-search-bar",
   class extends HTMLElement {
     constructor() {
       super();
       this.attachShadow({ mode: "open" });
-      const template = document.getElementById("vocab-search-bar-template");
-      this.shadowRoot.appendChild(template.content.cloneNode(true));
-      const searchQueryInput =
-        this.shadowRoot.getElementById("search-query-input");
-      this.resultsTableDiv = document.createElement("div");
-      this.shadowRoot.appendChild(this.resultsTableDiv);
-      searchQueryInput.addEventListener("change", async (event) => {
-        const query = event.target.value;
-        const results = await this.retrieveResults(query);
-        this.resultsTableDiv.innerHTML = this.constructTable(results).outerHTML;
+      this.redraw();
+    }
+
+    static get observedAttributes() {
+      return ["query"];
+    }
+
+    attributeChangedCallback(attrName, oldVal, newVal) {
+      if (attrName === "query") {
+        this.retrieveResults(newVal)
+          .then((results) => {
+            this.redraw({
+              searchResults: results,
+              query: newVal,
+            });
+          })
+          .catch();
+      }
+    }
+
+    redraw(props) {
+      this.shadowRoot.innerHTML = Template.render(props);
+      this.dom = Template.mapDOM(this.shadowRoot);
+      this.dom.searchInput.addEventListener("change", (event) => {
+        if (event.target.value) {
+          this.query = event.target.value;
+        }
       });
     }
 
-    constructTable(data) {
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      const headerRow = document.createElement("tr");
-
-      const uriHeader = document.createElement("th");
-      const prefLabelHeader = document.createElement("th");
-      const inSchemeHeader = document.createElement("th");
-
-      uriHeader.innerHTML = "URI";
-      prefLabelHeader.innerHTML = "prefLabel";
-      inSchemeHeader.innerHTML = "inScheme";
-
-      headerRow.appendChild(uriHeader);
-      headerRow.appendChild(prefLabelHeader);
-      headerRow.appendChild(inSchemeHeader);
-
-      thead.appendChild(headerRow);
-
-      const tbody = document.createElement("tbody");
-      for (const entry of data) {
-        tbody.appendChild(this.constructRow(entry));
-      }
-
-      table.appendChild(thead);
-      table.appendChild(tbody);
-
-      return table;
+    get query() {
+      return this.getAttribute("query");
     }
 
-    constructRow({ uri, prefLabel, schemePrefLabel }) {
-      const row = document.createElement("tr");
-
-      row.appendChild(document.createElement("td")).innerHTML = uri;
-      row.appendChild(document.createElement("td")).innerHTML = prefLabel;
-      row.appendChild(document.createElement("td")).innerHTML = schemePrefLabel;
-
-      return row;
+    set query(value) {
+      return this.setAttribute("query", String(value));
     }
 
     async retrieveResults(query) {
