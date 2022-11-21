@@ -1,33 +1,49 @@
 import search from "./mu-search.js";
 import { LitElement, html } from "./lit-core.min.js";
 
-const Template = {
-  html: function (props) {
-    return `
-      <div>
-      <input id="search-input" value="${props?.query ?? ""}" />
-      ${
-        props?.searchResults?.length > 0
-          ? this.renderResults(props.searchResults)
-          : ""
+customElements.define(
+  "vocab-search-bar",
+  class extends LitElement {
+    static properties = {
+      query: { attribute: true, reflect: true },
+      searchResults: { attribute: false, state: true },
+    };
+
+    constructor() {
+      super();
+      this.searchResults = null;
+    }
+
+    attributeChangedCallback(attrName, oldVal, newVal) {
+      if (attrName === "query") {
+        this.retrieveResults(newVal)
+          .then((results) => {
+            this.searchResults = results;
+          })
+          .catch();
       }
-      ${props?.searchResults?.length === 0 ? this.renderPlaceholder() : ""}
-      </div>`;
-  },
-  css: function (props) {
-    return "";
-  },
-  renderRow: function ({ uri, prefLabel, schemePrefLabel }) {
-    return `
-    <tr>
-      <td>${uri}</td>
-      <td>${prefLabel}</td>
-      <td>${schemePrefLabel}</td>
-    </tr>`;
-  },
-  renderResults: function (results) {
-    return `
-      <table>
+    }
+
+    render() {
+      return html`
+        <div>
+          <input
+            value=${this.query}
+            @change=${(event) => {
+              this.query = event.target.value;
+            }}
+          />
+          ${this.searchResults
+            ? this.searchResults.length === 0
+              ? html`<p>No results found.</p>`
+              : this._renderSearchResults()
+            : ""}
+        </div>
+      `;
+    }
+
+    _renderSearchResults() {
+      return html`<table>
         <thead>
           <tr>
             <th>URI</th>
@@ -36,46 +52,17 @@ const Template = {
           </tr>
         </thead>
         <tbody>
-          ${mapJoin(this.renderRow, results)}
+          ${this.searchResults.map((result) => this._renderRow(result))}
         </tbody>
       </table>`;
-  },
-  renderPlaceholder: () => `
-  <p>No results found.</p>
-  `,
-  render: function (props) {
-    return `${this.html(props)}
-            ${this.css(props)}`;
-  },
-  mapDOM(scope) {
-    return {
-      searchInput: scope.querySelector("#search-input"),
-    };
-  },
-};
-
-customElements.define(
-  "vocab-search-bar",
-  class extends LitElement {
-    static properties = {
-      query: { attribute: true, state: false },
-      searchResults: { attribute: false, state: true },
-    };
-
-    constructor() {
-      super();
-      this.query = "";
-      this.searchResults = null;
     }
 
-    attributeChangedCallback(attrName, oldVal, newVal) {
-      if (attrName === "query") {
-        console.log(wow);
-      }
-    }
-
-    render() {
-      return html`<input .value=${this.query}/>`;
+    _renderRow({ uri, prefLabel, schemePrefLabel }) {
+      return html`<tr>
+        <td>${uri}</td>
+        <td>${prefLabel}</td>
+        <td>${schemePrefLabel}</td>
+      </tr>`;
     }
 
     async retrieveResults(query) {
