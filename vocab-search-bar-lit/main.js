@@ -14,13 +14,12 @@ customElements.define(
       this.searchResults = null;
     }
 
-    attributeChangedCallback(attrName, oldVal, newVal) {
-      if (attrName === "query") {
-        this.retrieveResults(newVal)
-          .then((results) => {
-            this.searchResults = results;
-          })
-          .catch();
+    updated(changed) {
+      if (changed.has("query")) {
+        if (this.query === "") { return; }
+        this.retrieveResults().then((results) => {
+          this.searchResults = results;
+        });
       }
     }
 
@@ -28,7 +27,7 @@ customElements.define(
       return html`
         <div>
           <input
-            value=${this.query}
+            .value=${this.query}
             @change=${(event) => {
               this.query = event.target.value;
             }}
@@ -65,12 +64,12 @@ customElements.define(
       </tr>`;
     }
 
-    async retrieveResults(query) {
+    async retrieveResults() {
       const page = 0;
       const size = 15;
       const sort = null; // By relevance
       const filter = {
-        _all: query,
+        _all: this.query,
       };
       const results = await search(
         "concepts",
