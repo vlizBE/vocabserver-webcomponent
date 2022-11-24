@@ -7,16 +7,21 @@ customElements.define(
     static properties = {
       query: { attribute: true, reflect: true },
       searchResults: { attribute: false, state: true },
+      sourceDataset: { reflect: true },
     };
 
     constructor() {
       super();
+      this.query = null;
+      this.sourceDataset = null;
       this.searchResults = null;
     }
 
     updated(changed) {
       if (changed.has("query")) {
-        if (this.query === "") { return; }
+        if (this.query === "") {
+          return;
+        }
         this.retrieveResults().then((results) => {
           this.searchResults = results;
         });
@@ -70,6 +75,7 @@ customElements.define(
       const sort = null; // By relevance
       const filter = {
         _all: this.query,
+        sourceDataset: this.sourceDataset,
       };
       const results = await search(
         "concepts",
