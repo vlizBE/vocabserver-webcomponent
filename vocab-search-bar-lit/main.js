@@ -8,6 +8,7 @@ customElements.define(
       query: { attribute: true, reflect: true },
       searchResults: { attribute: false, state: true },
       sourceDataset: { reflect: true },
+      searchEndpoint: { attribute: "search-endpoint" },
     };
 
     constructor() {
@@ -42,8 +43,7 @@ customElements.define(
               ? html`<p>No results found.</p>`
               : this._renderSearchResults()
             : ""}
-        </div>
-      `;
+        </div>`;
     }
 
     _renderSearchResults() {
@@ -87,7 +87,8 @@ customElements.define(
           const entry = searchData.attributes;
           entry.id = searchData.id;
           return entry;
-        }
+        },
+        this.searchEndpoint
       );
 
       return results.content;

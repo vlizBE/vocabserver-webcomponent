@@ -1,28 +1,36 @@
-import getPaginationMetadata from './get-pagination-metadata.js';
+import getPaginationMetadata from "./get-pagination-metadata.js";
 
 function sortOrder(sort) {
-  if (sort.startsWith('-')) {
-    return 'desc';
+  if (sort.startsWith("-")) {
+    return "desc";
   } else if (sort.length > 0) {
-    return 'asc';
+    return "asc";
   }
   return null;
 }
 
 function stripSort(sort) {
-  return sort.replace(/(^\+)|(^-)/g, '');
+  return sort.replace(/(^\+)|(^-)/g, "");
 }
 
 function snakeToCamel(text) {
   return text.replace(/(-\w)/g, (entry) => entry[1].toUpperCase());
 }
 
-async function muSearch(index, page, size, sort, filter, dataMapping) {
-  const endpoint = new URL(`/${index}/search`, 'http://127.0.0.1:80');
+async function muSearch(
+  index,
+  page,
+  size,
+  sort,
+  filter,
+  dataMapping,
+  host = "http://127.0.0.1:80"
+) {
+  const endpoint = new URL(`/${index}/search`, host);
   const params = new URLSearchParams(
     Object.entries({
-      'page[size]': size,
-      'page[number]': page,
+      "page[size]": size,
+      "page[number]": page,
       // eslint-disable-next-line camelcase
       // collapse_uuids: 't',
     })
@@ -44,7 +52,7 @@ async function muSearch(index, page, size, sort, filter, dataMapping) {
   return {
     content: entries,
     meta: { count, pagination },
-  } 
+  };
 }
 
 export default muSearch;
