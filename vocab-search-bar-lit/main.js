@@ -10,6 +10,7 @@ customElements.define(
       searchEndpoint: { attribute: "search-endpoint" },
 
       searchResults: { attribute: false, state: true },
+      _isLoading: { state: true },
     };
 
     constructor() {
@@ -17,6 +18,7 @@ customElements.define(
       this.query = null;
       this.sourceDataset = null;
       this.searchResults = null;
+      this._isLoading = false;
     }
 
     updated(changed) {
@@ -24,7 +26,9 @@ customElements.define(
         if (this.query === "") {
           return;
         }
+        this._isLoading = true;
         this.retrieveResults().then((results) => {
+          this._isLoading = false;
           this.searchResults = results;
           this.dispatchEvent(
             new CustomEvent("search-results-changed", {
@@ -44,7 +48,9 @@ customElements.define(
             this.query = event.target.value;
           }}
         />
-        ${this.searchResults
+        ${this._isLoading
+          ? html`<p>Loading...</p>`
+          : this.searchResults
           ? this.searchResults.length === 0
             ? html`<p>No results found.</p>`
             : this._renderSearchResults()
