@@ -36,20 +36,19 @@ customElements.define(
     }
 
     render() {
-      return html`
-        <div>
-          <input
-            .value=${this.query}
-            @change=${(event) => {
-              this.query = event.target.value;
-            }}
-          />
-          ${this.searchResults
-            ? this.searchResults.length === 0
-              ? html`<p>No results found.</p>`
-              : this._renderSearchResults()
-            : ""}
-        </div>`;
+      return html` <div>
+        <input
+          .value=${this.query}
+          @change=${(event) => {
+            this.query = event.target.value;
+          }}
+        />
+        ${this.searchResults
+          ? this.searchResults.length === 0
+            ? html`<p>No results found.</p>`
+            : this._renderSearchResults()
+          : ""}
+      </div>`;
     }
 
     _renderSearchResults() {
@@ -90,10 +89,12 @@ customElements.define(
       const page = 0;
       const size = 15;
       const sort = null; // By relevance
-      const filter = {
+      let filter = {
         _all: this.query,
-        sourceDataset: this.sourceDataset,
       };
+      if (this.sourceDataset) {
+        filter.sourceDataset = this.sourceDataset;
+      }
       const results = await search(
         "concepts",
         page,
