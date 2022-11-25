@@ -57,7 +57,6 @@ customElements.define(
           <tr>
             <th>URI</th>
             <th>prefLabel</th>
-            <th>inScheme</th>
           </tr>
         </thead>
         <tbody>
@@ -66,13 +65,12 @@ customElements.define(
       </table>`;
     }
 
-    _renderRow({ uri, prefLabel, schemePrefLabel }) {
+    _renderRow({ uri, prefLabel }) {
       return html`<tr
         @click=${() => this._onRowClicked({ uri, prefLabel, schemePrefLabel })}
       >
         <td>${uri}</td>
         <td>${prefLabel}</td>
-        <td>${schemePrefLabel}</td>
       </tr>`;
     }
 
