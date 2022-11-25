@@ -66,9 +66,7 @@ customElements.define(
     }
 
     _renderRow({ uri, prefLabel }) {
-      return html`<tr
-        @click=${() => this._onRowClicked({ uri, prefLabel, schemePrefLabel })}
-      >
+      return html`<tr @click=${() => this._onRowClicked({ uri, prefLabel })}>
         <td>${uri}</td>
         <td>${prefLabel}</td>
       </tr>`;
