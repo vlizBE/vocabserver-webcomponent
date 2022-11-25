@@ -25,6 +25,12 @@ customElements.define(
         }
         this.retrieveResults().then((results) => {
           this.searchResults = results;
+          this.dispatchEvent(
+            new CustomEvent("search-results-changed", {
+              bubbles: true,
+              detail: { results },
+            })
+          );
         });
       }
     }
@@ -62,11 +68,22 @@ customElements.define(
     }
 
     _renderRow({ uri, prefLabel, schemePrefLabel }) {
-      return html`<tr>
+      return html`<tr
+        @click=${() => this._onRowClicked({ uri, prefLabel, schemePrefLabel })}
+      >
         <td>${uri}</td>
         <td>${prefLabel}</td>
         <td>${schemePrefLabel}</td>
       </tr>`;
+    }
+
+    _onRowClicked(data) {
+      this.dispatchEvent(
+        new CustomEvent("search-result-clicked", {
+          bubbles: true,
+          detail: data,
+        })
+      );
     }
 
     async retrieveResults() {
