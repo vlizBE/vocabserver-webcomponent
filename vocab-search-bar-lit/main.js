@@ -74,7 +74,7 @@ customElements.define(
 
     _renderRow({ uri, prefLabel }) {
       return html`<tr @click=${() => this._onRowClicked({ uri, prefLabel })}>
-        <td>${uri}</td>
+        <td><a href=${uri}>${uri}</a></td>
         <td>${prefLabel}</td>
       </tr>`;
     }
