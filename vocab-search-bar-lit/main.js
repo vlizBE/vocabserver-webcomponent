@@ -5,10 +5,11 @@ customElements.define(
   "vocab-search-bar",
   class extends LitElement {
     static properties = {
-      query: { attribute: true, reflect: true },
-      searchResults: { attribute: false, state: true },
-      sourceDataset: { reflect: true },
+      query: { reflect: true },
+      sourceDataset: { attribute: "source-dataset", reflect: true },
       searchEndpoint: { attribute: "search-endpoint" },
+
+      searchResults: { attribute: false, state: true },
     };
 
     constructor() {

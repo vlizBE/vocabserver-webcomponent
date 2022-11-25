@@ -13,10 +13,13 @@ Copy the `vocab-search-bar-lit` folder to the root of your project. Add `<script
 ```html
 <vocab-search-bar 
     query="<initial query>" 
-    schemeuri="https://some.uri.com">
+    source-dataset="<uri>"
+    search-endpoint="<uri-of-search-endpoint>"
+>
 </vocab-search-bar>
 ```
 
 ### Attributes/properties
 - `query`: the search query
-- `schemeuri`: restricts the search to a singe scheme
+- `source-dataset`: restricts the search to a single dataset
+- `search-endpoint`: url of the search backend
