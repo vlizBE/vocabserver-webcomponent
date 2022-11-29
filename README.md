@@ -32,5 +32,5 @@ Copy the `vocab-search-bar-lit` folder to the root of your project. Add `<script
 ### Custom Events
 | Type                     | `event.detail` type                       | Description                                                                                                 |
 |--------------------------|-------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| `search-results-changed` | `Array<{uri: String, prefLabel: String}>` | Gets dispatched when the search results are changed as a result of the user changing the search parameters. |
-| `search-result-clicked`  | `{uri: String, prefLabel: String}`        | Gets dispatched when a search result is clicked in the default results view.                                |
+| `search-results-changed` | `Array<{uri: string, prefLabel: string}>` | Gets dispatched when the search results are changed as a result of the user changing the search parameters. |
+| `search-result-clicked`  | `{uri: string, prefLabel: string}`        | Gets dispatched when a search result is clicked in the default results view.                                |
