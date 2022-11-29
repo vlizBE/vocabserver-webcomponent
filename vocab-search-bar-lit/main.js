@@ -33,7 +33,7 @@ customElements.define(
           this.dispatchEvent(
             new CustomEvent("search-results-changed", {
               bubbles: true,
-              detail: { results },
+              detail: results,
             })
           );
         });
