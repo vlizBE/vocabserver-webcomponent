@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Search</title>
+    <script type="module" src="vocab-search-bar-lit/main.js"></script>
+    <script>
+      window.onload = function () {
+        const container = document.querySelector("#container");
+
+        container.addEventListener("search-results-changed", (event) => {
+          console.log(`The search results have changed to ${event.detail}`);
+        });
+
+        container.addEventListener("search-result-clicked", (event) => {
+          console.log(`A search result was clicked: ${event.detail}`);
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <h1>Search</h1>
+    <div id="container">
+      <vocab-search-bar
+        query="class"
+        search-endpoint="https://vocabsearch.redpencil.io"
+      >
+      </vocab-search-bar>
+    </div>
+  </body>
+</html>
