@@ -26,7 +26,7 @@ Copy the `vocab-search-bar-lit` folder to the root of your project. Add `<script
 ### Attributes/properties
 
 - `query`: the search query
-- `source-dataset`: restricts the search to a single dataset
+- `source-datasets`: restricts the search to a comma separated list of datasets.
 - `search-endpoint`: url of the search backend
 
 ### Custom Events

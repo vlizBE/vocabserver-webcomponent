@@ -1,13 +1,19 @@
 import search from "./mu-search.js";
 import { LitElement, html } from "./lit-core.min.js";
+import { sourceDatasetsConverter } from "./attribute-converters.js";
 
 customElements.define(
   "vocab-search-bar",
   class extends LitElement {
     static properties = {
       query: { reflect: true },
-      sourceDataset: { attribute: "source-dataset", reflect: true },
+      sourceDatasets: {
+        attribute: "source-datasets",
+        reflect: true,
+        converter: sourceDatasetsConverter,
+      },
       searchEndpoint: { attribute: "search-endpoint" },
+      languagesString: { attribute: "languages-string" },
 
       searchResults: { attribute: false, state: true },
       _isLoading: { state: true },
@@ -16,8 +22,9 @@ customElements.define(
     constructor() {
       super();
       this.query = null;
-      this.sourceDataset = null;
+      this.sourceDatasets = [];
       this.searchResults = null;
+      this.languageString = null;
       this._isLoading = false;
     }
 
@@ -88,22 +95,35 @@ customElements.define(
       );
     }
 
+    createFilter() {
+      let filter = {};
+
+      // const languagesString = this.languagesString ?? "default";
+      // const languageStrings = languagesString.split(",");
+      // const labelStrings = languageStrings.map((x) => `prefLabel.${x}`);
+      // labelStrings.forEach((x) => {
+      //   filter[x] = this.query;
+      // });
+
+      filter["prefLabel"] = this.query;
+
+      if (this.sourceDatasets.length > 0) {
+        filter[":terms:sourceDataset.keyword"] = this.sourceDatasets.join(",");
+      }
+
+      return filter;
+    }
+
     async retrieveResults() {
       const page = 0;
       const size = 15;
       const sort = null; // By relevance
-      let filter = {
-        _all: this.query,
-      };
-      if (this.sourceDataset) {
-        filter.sourceDataset = this.sourceDataset;
-      }
       const results = await search(
         "concepts",
         page,
         size,
         sort,
-        filter,
+        this.createFilter(),
         (searchData) => {
           const entry = searchData.attributes;
           entry.id = searchData.id;
