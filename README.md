@@ -25,15 +25,19 @@ Copy the `vocab-search-bar-lit` folder to the root of your project. Add `<script
 
 ### Attributes/properties
 
-- `query`: the search query
-- `source-datasets`: restricts the search to a comma separated list of datasets.
-- `search-endpoint`: url of the search backend
+| Name               | Type   | Default Value | Description                                                                                     |
+| ------------------ | ------ | ------------- | ----------------------------------------------------------------------------------------------- |
+| `query`            | string | ""            | The search query                                                                                |
+| `source-datasets`  | array  | null          | Restricts the search to data from these datasets                                                |
+| `search-endpoint`  | string | ""            | URL of the search backend                                                                       |
+| `languages-string` | string | ""            | Comma separated list of ISO languages codes. The search will only show terms in these languages |
 
 ### Custom Events
-Some Custom Events that are dispatched by the component. See MDN for more information about [DOM Events](https://developer.mozilla.org/en-US/docs/Web/Events) and [Custom Events](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent).
-| Type                     | `event.detail` type                       | Description                                                                                                 |
+
+This Web Component dispatches semantic events upon user interaction. You can bind to these events with the standard DOM APIs, such as `addEventListener`. See MDN for more information about [DOM Events](https://developer.mozilla.org/en-US/docs/Web/Events) and [Custom Events](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent).
+| Type | `event.detail` type | Description |
 |--------------------------|-------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | `search-results-changed` | `Array<{uri: string, prefLabel: string}>` | Gets dispatched when the search results are changed as a result of the user changing the search parameters. |
-| `search-result-clicked`  | `{uri: string, prefLabel: string}`        | Gets dispatched when a search result is clicked in the default results view.                                |
+| `search-result-clicked` | `{uri: string, prefLabel: string}` | Gets dispatched when a search result is clicked in the default results view. |
 
 See [`examples/events.html`](https://github.com/vlizBE/vocabserver-webcomponent/blob/main/examples/events.html) for a usage example.
