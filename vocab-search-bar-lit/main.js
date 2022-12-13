@@ -82,7 +82,13 @@ customElements.define(
     _renderRow({ uri, prefLabel }) {
       return html`<tr @click=${() => this._onRowClicked({ uri, prefLabel })}>
         <td><a href=${uri}>${uri}</a></td>
-        <td>${prefLabel}</td>
+        <td>
+          <ul>
+            ${Object.entries(prefLabel).map(
+              (x) => html`<li>${x[0]}: ${x[1]}</li>`
+            )}
+          </ul>
+        </td>
       </tr>`;
     }
 
@@ -98,14 +104,14 @@ customElements.define(
     createFilter() {
       let filter = {};
 
-      // const languagesString = this.languagesString ?? "default";
-      // const languageStrings = languagesString.split(",");
-      // const labelStrings = languageStrings.map((x) => `prefLabel.${x}`);
-      // labelStrings.forEach((x) => {
-      //   filter[x] = this.query;
-      // });
+      const languagesString = this.languagesString ?? "*";
 
-      filter["prefLabel"] = this.query;
+      const queryKey = languagesString
+        .split(",")
+        .map((x) => `prefLabel.${x}`)
+        .join(",");
+
+      filter[queryKey] = this.query;
 
       if (this.sourceDatasets.length > 0) {
         filter[":terms:sourceDataset.keyword"] = this.sourceDatasets.join(",");
