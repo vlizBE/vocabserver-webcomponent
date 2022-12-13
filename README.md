@@ -30,7 +30,7 @@ Copy the `vocab-search-bar-lit` folder to the root of your project. Add `<script
 | `query`            | string | ""            | The search query                                                                                |
 | `source-datasets`  | array  | null          | Restricts the search to data from these datasets                                                |
 | `search-endpoint`  | string | ""            | URL of the search backend                                                                       |
-| `languages-string` | string | ""            | Comma separated list of ISO languages codes. The search will only show terms in these languages |
+| `languages-string` | string | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
 
 ### Custom Events
 
@@ -38,6 +38,6 @@ This Web Component dispatches semantic events upon user interaction. You can bin
 | Type | `event.detail` type | Description |
 |--------------------------|-------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | `search-results-changed` | `Array<{uri: string, prefLabel: string}>` | Gets dispatched when the search results are changed as a result of the user changing the search parameters. |
-| `search-result-clicked` | `{uri: string, prefLabel: string}` | Gets dispatched when a search result is clicked in the default results view. |
+| `search-result-clicked` | `{uri: string, prefLabel: {<iso_language_id>: string}}` | Gets dispatched when a search result is clicked in the default results view. |
 
 See [`examples/events.html`](https://github.com/vlizBE/vocabserver-webcomponent/blob/main/examples/events.html) for a usage example.
