@@ -114,7 +114,7 @@ customElements.define(
       filter[queryKey] = this.query;
 
       if (this.sourceDatasets.length > 0) {
-        filter[":terms:sourceDataset.keyword"] = this.sourceDatasets.join(",");
+        filter[":terms:sourceDataset"] = this.sourceDatasets.join(",");
       }
 
       return filter;
