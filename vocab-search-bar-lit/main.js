@@ -14,6 +14,7 @@ customElements.define(
       },
       searchEndpoint: { attribute: "search-endpoint" },
       languagesString: { attribute: "languages-string" },
+      tagsFilter: { attribute: "tags-filter" },
 
       searchResults: { attribute: false, state: true },
       _isLoading: { state: true },
@@ -22,6 +23,7 @@ customElements.define(
     constructor() {
       super();
       this.query = null;
+      this.tagsFilter = null;
       this.sourceDatasets = [];
       this.searchResults = null;
       this.languageString = null;
@@ -112,6 +114,10 @@ customElements.define(
         .join(",");
 
       filter[queryKey] = this.query;
+
+      if (this.tagsFilter) {
+        filter.tagLabels = this.tagsFilter;
+      }
 
       if (this.sourceDatasets.length > 0) {
         filter[":terms:sourceDataset"] = this.sourceDatasets.join(",");
