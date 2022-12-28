@@ -31,6 +31,7 @@ Copy the `vocab-search-bar-lit` folder to the root of your project. Add `<script
 | `source-datasets`  | array  | null          | Restricts the search to data from these datasets                                                |
 | `search-endpoint`  | string | ""            | URL of the search backend                                                                       |
 | `languages-string` | string | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
+| `tag-filter`       | string | null          | Specify allowed tags separated by a comma                                                       |
 
 ### Custom Events
 

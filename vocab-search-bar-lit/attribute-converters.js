@@ -1,4 +1,4 @@
-export const sourceDatasetsConverter = {
+export const commaSeparatedConverter = {
   fromAttribute: (value, type) => {
     return value.split(",").filter((x) => x !== "");
   },

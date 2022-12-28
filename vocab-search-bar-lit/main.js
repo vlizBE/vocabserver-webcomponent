@@ -1,6 +1,6 @@
 import search from "./mu-search.js";
 import { LitElement, html } from "./lit-core.min.js";
-import { sourceDatasetsConverter } from "./attribute-converters.js";
+import { commaSeparatedConverter } from "./attribute-converters.js";
 
 customElements.define(
   "vocab-search-bar",
@@ -10,11 +10,14 @@ customElements.define(
       sourceDatasets: {
         attribute: "source-datasets",
         reflect: true,
-        converter: sourceDatasetsConverter,
+        converter: commaSeparatedConverter,
       },
       searchEndpoint: { attribute: "search-endpoint" },
       languagesString: { attribute: "languages-string" },
-      tagsFilter: { attribute: "tags-filter" },
+      tagsFilter: {
+        attribute: "tags-filter",
+        converter: commaSeparatedConverter,
+      },
 
       searchResults: { attribute: false, state: true },
       _isLoading: { state: true },
@@ -115,8 +118,8 @@ customElements.define(
 
       filter[queryKey] = this.query;
 
-      if (this.tagsFilter) {
-        filter.tagLabels = this.tagsFilter;
+      for (const tag of this.tagsFilter) {
+        filter[`:term:tagLabels`] = tag;
       }
 
       if (this.sourceDatasets.length > 0) {
