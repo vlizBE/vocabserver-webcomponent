@@ -18,6 +18,7 @@ customElements.define(
         attribute: "tags-filter",
         converter: commaSeparatedConverter,
       },
+      displayResults: { attribute: "display-results" },
 
       searchResults: { attribute: false, state: true },
       _isLoading: { state: true },
@@ -30,6 +31,7 @@ customElements.define(
       this.sourceDatasets = [];
       this.searchResults = null;
       this.languageString = null;
+      this.displayResults = true;
       this._isLoading = false;
     }
 
@@ -60,6 +62,12 @@ customElements.define(
             this.query = event.target.value;
           }}
         />
+        ${this.displayResults ? this._renderResultsArea() : ""}
+      </div>`;
+    }
+
+    _renderResultsArea() {
+      html`
         ${this._isLoading
           ? html`<p>Loading...</p>`
           : this.searchResults
@@ -67,7 +75,7 @@ customElements.define(
             ? html`<p>No results found.</p>`
             : this._renderSearchResults()
           : ""}
-      </div>`;
+      `;
     }
 
     _renderSearchResults() {
