@@ -26,7 +26,7 @@ customElements.define(
     constructor() {
       super();
       this.query = null;
-      this.tagsFilter = null;
+      this.tagsFilter = [];
       this.sourceDatasets = [];
       this.searchResults = null;
       this.languageString = null;
