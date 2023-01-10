@@ -67,7 +67,7 @@ customElements.define(
     }
 
     _renderResultsArea() {
-      html`
+      return html`
         ${this._isLoading
           ? html`<p>Loading...</p>`
           : this.searchResults
