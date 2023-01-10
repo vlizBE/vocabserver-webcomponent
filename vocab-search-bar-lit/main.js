@@ -18,7 +18,7 @@ customElements.define(
         attribute: "tags-filter",
         converter: commaSeparatedConverter,
       },
-      displayResults: { attribute: "display-results" },
+      hideResults: { attribute: "hide-results", type: Boolean },
 
       searchResults: { attribute: false, state: true },
       _isLoading: { state: true },
@@ -31,7 +31,7 @@ customElements.define(
       this.sourceDatasets = [];
       this.searchResults = null;
       this.languageString = null;
-      this.displayResults = true;
+      this.hideResults = false;
       this._isLoading = false;
     }
 
@@ -62,7 +62,7 @@ customElements.define(
             this.query = event.target.value;
           }}
         />
-        ${this.displayResults ? this._renderResultsArea() : ""}
+        ${!this.hideResults ? this._renderResultsArea() : ""}
       </div>`;
     }
 
