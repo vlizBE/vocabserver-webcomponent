@@ -37,7 +37,7 @@ customElements.define(
 
     updated(changed) {
       if (changed.has("query")) {
-        if (this.query === "") {
+        if (!this.query) {
           return;
         }
         this._isLoading = true;
