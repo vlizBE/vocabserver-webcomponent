@@ -121,10 +121,15 @@ customElements.define(
 
       const queryKey = languagesString
         .split(",")
-        .map((x) => `prefLabel.${x}`)
+        .map((x) => `:sqs:prefLabel.${x}`)
         .join(",");
 
-      filter[queryKey] = this.query;
+      const sqs = this.query
+        .split(" ")
+        .map((word) => `(${word}*|${word})`)
+        .join(" ");
+
+      filter[queryKey] = sqs;
 
       for (const tag of this.tagsFilter) {
         filter[`:term:tagLabels`] = tag;
