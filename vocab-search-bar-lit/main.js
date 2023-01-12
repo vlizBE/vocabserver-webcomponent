@@ -131,9 +131,7 @@ customElements.define(
 
       filter[queryKey] = sqs;
 
-      for (const tag of this.tagsFilter) {
-        filter[`:term:tagLabels`] = tag;
-      }
+      filter[`:terms:tagLabels`] = this.tagsFilter;
 
       if (this.sourceDatasets.length > 0) {
         filter[":terms:sourceDataset"] = this.sourceDatasets.join(",");
