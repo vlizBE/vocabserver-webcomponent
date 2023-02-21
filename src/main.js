@@ -1,5 +1,5 @@
 import search from "./mu-search.js";
-import { LitElement, html } from "./lit-core.min.js";
+import { LitElement, html } from "lit";
 import { commaSeparatedConverter } from "./attribute-converters.js";
 
 customElements.define(
@@ -164,3 +164,5 @@ customElements.define(
     }
   }
 );
+
+export default 21;
