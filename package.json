@@ -6,6 +6,7 @@
   "module": "src/main.js",
   "type": "module",
   "scripts": {
+    "release": "release-it",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,5 +21,8 @@
   "homepage": "https://github.com/vlizBE/vocabserver-webcomponent#readme",
   "dependencies": {
     "lit": "^2.6.1"
+  },
+  "devDependencies": {
+    "release-it": "^15.6.0"
   }
 }
