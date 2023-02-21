@@ -2,17 +2,27 @@
 
 ## Installation
 
-### Standalone
-
-Run `python -m http.server` inside the root of this repository.
-
-### Inside other project
-
-**TODO:** include specific instructions for different frameworks (react, emberjs, ...)
-
-Copy the `vocab-search-bar-lit` folder to the root of your project. Add `<script type="module" src="vocab-search-bar-lit/main.js"></script>` to the header of the html files where the component will be used.
+```
+$ npm install --save vocab-search-search-bar
+```
 
 ## Usage
+
+### Script
+
+Import as a module:
+
+```
+import 'vocab-search-search-bar'
+```
+
+With a script tag:
+
+```
+<script type="module" src="./node_modules/vocab-search-search-bar/dist/vocab-search-bar.js"></script>
+```
+
+### Markup
 
 ```html
 <vocab-search-bar
@@ -31,10 +41,10 @@ Copy the `vocab-search-bar-lit` folder to the root of your project. Add `<script
 | `source-datasets`  | array   | null          | Restricts the search to data from these datasets                                                |
 | `search-endpoint`  | string  | ""            | URL of the search backend                                                                       |
 | `languages-string` | string  | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
-| `tags-filter`       | string  | null          | Specify allowed tags separated by a comma                                                       |
-| `hide-results`  | boolean | false          | Hide the search results                                                                      |
+| `tags-filter`      | string  | null          | Specify allowed tags separated by a comma                                                       |
+| `hide-results`     | boolean | false         | Hide the search results                                                                         |
 
-### Custom Events
+## Custom Events
 
 This Web Component dispatches semantic events upon user interaction. You can bind to these events with the standard DOM APIs, such as `addEventListener`. See MDN for more information about [DOM Events](https://developer.mozilla.org/en-US/docs/Web/Events) and [Custom Events](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent).
 | Type | `event.detail` type | Description |
