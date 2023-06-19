@@ -115,7 +115,7 @@ export default class VocabSearchBar extends LitElement {
   createFilter() {
     let filter = {};
 
-    const languagesString = this.languagesString ?? "*";
+    const languagesString = this.languagesString || "*";
 
     const queryKey = languagesString
       .split(",")
