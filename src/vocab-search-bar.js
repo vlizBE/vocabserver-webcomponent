@@ -119,7 +119,7 @@ export default class VocabSearchBar extends LitElement {
 
     const queryKey = languagesString
       .split(",")
-      .map((x) => `:sqs:prefLabel.${x}`)
+      .map((x) => `prefLabel.${x}`)
       .join(",");
 
     const sqs = this.query
@@ -127,7 +127,7 @@ export default class VocabSearchBar extends LitElement {
       .map((word) => `(${word}*|${word})`)
       .join(" ");
 
-    filter[queryKey] = sqs;
+    filter[`:sqs:${queryKey}`] = sqs;
 
     if (this.tagsFilter.length > 0) {
       filter[`:terms:tagLabels`] = this.tagsFilter.join(",");
