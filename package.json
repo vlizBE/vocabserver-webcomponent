@@ -2,9 +2,7 @@
   "name": "vocab-search-search-bar",
   "version": "0.1.0",
   "description": "A simple search bar, compatible with the vocab-search backend",
-  "main": "dist/vocab-search-bar.js",
-  "module": "dist/vocab-search-bar.js",
-  "type": "module",
+  "main": "src/vocab-search-bar.js",
   "scripts": {
     "release": "release-it",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,8 +14,7 @@
   "files": [
     "src"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "VLIZ",
   "bugs": {
     "url": "https://github.com/vlizBE/vocabserver-webcomponent/issues"
   },
