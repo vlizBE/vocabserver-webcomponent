@@ -53,3 +53,8 @@ This Web Component dispatches semantic events upon user interaction. You can bin
 | `search-result-clicked` | `{uri: string, prefLabel: {<iso_language_id>: string}}` | Gets dispatched when a search result is clicked in the default results view. |
 
 See [`examples/events.html`](https://github.com/vlizBE/vocabserver-webcomponent/blob/main/examples/events.html) for a usage example.
+
+## Development
+run `npm start` to activate the web-dev-server. This will werve the `demo.html`, which includes an example of the webcomponent. This can then be used for testing.
+
+This uses a [Vaadin multiselect](https://vaadin.com/docs/latest/components/multi-select-combo-box), defined in https://github.com/vaadin/web-components/tree/main/packages/multi-select-combo-box, combined with [Lit Component](https://lit.dev/docs/components/overview/).

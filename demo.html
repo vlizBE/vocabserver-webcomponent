@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Search</title>
+    <!-- As this is used directly for development web-dev-server, set the src directly to the correct file -->
+    <script type="module" src="src/advanced-vocab-search-bar.js"></script>
+    <script>
+
+      window.onload = function () {
+        const container = document.querySelector("#container");
+        const search = document.querySelector("#search");
+        console.log(search.getAttribute("items-selected"))
+
+        container.addEventListener("search-results-changed", (event) => {
+          
+          //console.log(`The search results have changed to: `);
+          //console.log(JSON.stringify(event.detail))
+        });
+
+        container.addEventListener("selection-changed", (event) => {
+          console.log(search.getAttribute("items-selected"))
+          //console.log(`A search result was clicked: ${event.detail}`);
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <h1>Search</h1>
+    <div id="container">
+      <advanced-vocab-search-bar
+        id="search"
+        query="test"
+        search-endpoint="https://vocabsearch.redpencil.io"
+        initial-selection="http://vocab.nerc.ac.uk/collection/P01/current/ROCKSAER/"
+      >
+      </advanced-vocab-search-bar>
+    </div>
+  </body>
+</html>
