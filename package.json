@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/vlizBE/vocabserver-webcomponent#readme",
   "dependencies": {
+    "@vaadin/multi-select-combo-box": "^24.2.6",
     "lit": "^2.6.1"
   },
   "devDependencies": {
