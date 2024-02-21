@@ -35,14 +35,14 @@ With a script tag:
 
 ### Attributes/properties
 
-| Name               | Type    | Default Value | Description                                                                                     |
-| ------------------ | ------- | ------------- | ----------------------------------------------------------------------------------------------- |
-| `query`            | string  | ""            | The search query                                                                                |
-| `source-datasets`  | array   | null          | Restricts the search to data from these datasets                                                |
-| `search-endpoint`  | string  | ""            | URL of the search backend                                                                       |
-| `languages-string` | string  | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
-| `tags-filter`      | string  | null          | Specify allowed tags separated by a comma                                                       |
-| `hide-results`     | boolean | false         | Hide the search results                                                                         |
+| Name               | Type   | Default Value | Description                                                                                     |
+| ------------------ | ------ | ------------- | ----------------------------------------------------------------------------------------------- |
+| `query`            | string | ""            | The search query. Can set an initial value to used to create the initial results list.          |
+| `initial-selection`            | array (comma-separated string) | ""            | Set the initial selected values. This is a list of uris          |
+| `source-datasets`  | array (comma-separated string) | null          | Restricts the search to data from these datasets                                                |
+| `search-endpoint`  | string | ""            | URL of the search backend                                                                       |
+| `languages-string` | string | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
+| `tags-filter`      | string | null          | Specify allowed tags separated by a comma                                                       |
 
 ## Custom Events
 
@@ -50,7 +50,7 @@ This Web Component dispatches semantic events upon user interaction. You can bin
 | Type | `event.detail` type | Description |
 |--------------------------|-------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | `search-results-changed` | `Array<{uri: string, prefLabel: string}>` | Gets dispatched when the search results are changed as a result of the user changing the search parameters. |
-| `search-result-clicked` | `{uri: string, prefLabel: {<iso_language_id>: string}}` | Gets dispatched when a search result is clicked in the default results view. |
+| `selection-changed` | `{uri: string, prefLabel: {<iso_language_id>: string}}` | Gets dispatched when the selection changes after a result is clicked to (de)select it. |
 
 See [`examples/events.html`](https://github.com/vlizBE/vocabserver-webcomponent/blob/main/examples/events.html) for a usage example.
 
