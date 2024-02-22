@@ -51,7 +51,7 @@ export default class AdvancedVocabSearchBar extends LitElement {
   async connectedCallback() {
     super.connectedCallback();
     this._isLoading = true;
-    this.loadInitialSelections();
+    this.loadInitialSelectionsAndAliases();
   }
 
   updated(changed) {
@@ -188,11 +188,38 @@ export default class AdvancedVocabSearchBar extends LitElement {
 
   // fills in the initial selection (that is just a uri)
   // with all information (like prefLabel)
-  async loadInitialSelections() {
+  async loadInitialSelectionsAndAliases() {
+    this._isLoading = true;
+    await this.loadDatasetAliases();
+    const promises = [];
     for (const initial of this.initialSelection) {
-      await this.loadInitialSelection(initial);
+       promises.push(this.loadInitialSelection(initial));
     }
+    await Promise.all(promises);
     this._isLoading = false;
+  }
+
+  async loadDatasetAliases() {
+    const promises = [];
+    for(const datasetUri of this.sourceDatasets) { 
+      promises.push(this.loadDatasetAlias(datasetUri));
+    }
+    await Promise.all(promises);
+  }
+
+  async fetchResource(resource, filters) {
+    const endpoint = new URL(`/${resource}`, this.searchEndpoint);
+    const params = new URLSearchParams(filters);
+    endpoint.search = params.toString();
+
+    const results = await (
+      await fetch(endpoint, {
+        headers: {
+          Accept: "application/json",
+        },
+      })
+    ).json();
+    return results;
   }
 
   async loadInitialSelection(uri) {
@@ -207,17 +234,8 @@ export default class AdvancedVocabSearchBar extends LitElement {
       ]);
       initialFilterWord = "";
     }
-    const endpoint = new URL(`/concepts`, this.searchEndpoint);
-    const params = new URLSearchParams(filters);
-    endpoint.search = params.toString();
+    const returned = await this.fetchResource("concepts", filters);
 
-    const returned = await (
-      await fetch(endpoint, {
-        headers: {
-          Accept: "application/json",
-        },
-      })
-    ).json();
     // replace the option in the selection with an object containing all data like prefLabel
     let selection = returned.data[0];
     selection = {
@@ -231,6 +249,27 @@ export default class AdvancedVocabSearchBar extends LitElement {
     if (index === -1) {
       this.itemsSelected.push(selection);
     }
+  }
+
+  async loadDatasetAlias(uri) {
+    const filters = [];
+    filters.push(["filter[:or:][:exact:alias]", uri]);
+    //filters.push(["filter[:or:][:uri:]", uri]);        
+    
+    let dataset = (await this.fetchResource("datasets", filters)).data;
+    if(dataset.length > 0){
+      dataset = {...dataset[0], ...dataset[0].attributes} 
+      if(dataset.uri === uri) {
+        //nothing to do, dataset uri already set correctly
+      }
+      if(dataset.alias === uri) {
+        //change the alias to actual uri
+        const index = this.sourceDatasets.findIndex(d => d === uri)
+        this.sourceDatasets[index] = dataset.uri
+      }
+    }
+    // dataset was not found
+    console.warn(`dataset ${uri} was not found as a dataset or alias of a dataset`);
   }
 
   // converts resources structure: [{"content": content, "language": lang}, ...]
