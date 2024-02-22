@@ -99,7 +99,6 @@ export default class AdvancedVocabSearchBar extends LitElement {
   }
 
   selectItems(e) {
-    console.log(this.itemsSelected);
     const newUris = e.detail.value.map((e) => e.uri);
     const oldUris = this.itemsSelected.map((s) => s.uri);
     const addedUris = newUris.filter((newUri) => !oldUris.includes(newUri));
@@ -117,12 +116,19 @@ export default class AdvancedVocabSearchBar extends LitElement {
   }
 
   _renderRow({ uri, prefLabel }) {
-    return html`<div class="combo-box-choice">
-      <a href=${uri}>${uri}</a>
-        ${Object.entries(prefLabel).map(
-          (x) => html`<li>${x[0]}: ${x[1]}</li>`
-        )}
-    </div>`;
+    // uses inline styling, as Lit styles only in its own shadow dom
+    // which seems to not work for the rendered choice list.
+    // note: might be fixable with more research.
+    return html`
+    <div class="combo-box-choice" style="display: flex; align-items: center;">
+      <div class="icon" style="margin-right: 10px; cursor: pointer;">
+        <a href=${uri} target="_blank">🔗</a>
+      </div>
+      <div class="text" style="flex-grow: 1;"> 
+        ${Object.entries(prefLabel).map((x) => html`<li>${x[0]}: ${x[1]}</li>`)}
+      </div>
+    </div>
+    `;
   }
 
   createFilter() {
