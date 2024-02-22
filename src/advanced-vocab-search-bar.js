@@ -4,10 +4,11 @@ import { commaSeparatedConverter } from "./attribute-converters.js";
 import '@vaadin/multi-select-combo-box';
 import {comboBoxRenderer} from '@vaadin/combo-box/lit';
 
+const LABEL_LENGTH = 15;
 export default class AdvancedVocabSearchBar extends LitElement {
   static properties = {
     query: { reflect: true },
-    itemsSelected: { reflect: true, attribute: "items-selected" },
+    itemsSelected: {state: true},
     initialSelection: {
       converter: commaSeparatedConverter,
       attribute: "initial-selection",
@@ -24,7 +25,7 @@ export default class AdvancedVocabSearchBar extends LitElement {
       converter: commaSeparatedConverter,
     },
     hideResults: { attribute: "hide-results", type: Boolean },
-    _isLoading: { state: true },
+    _isLoading: { state: true, attribute: false },
   };
 
   static get styles() {
@@ -47,13 +48,9 @@ export default class AdvancedVocabSearchBar extends LitElement {
     this._isLoading = false;
   }
 
-  connectedCallback() {
+  async connectedCallback() {
     super.connectedCallback();
-    this.itemsSelected = [
-      ...this.initialSelection.map((uri) => {
-        return { uri: uri, prefLabel: "" };
-      }),
-    ];
+    this._isLoading = true;
     this.loadInitialSelections();
   }
 
@@ -62,9 +59,7 @@ export default class AdvancedVocabSearchBar extends LitElement {
       if (!this.query) {
         return;
       }
-      this._isLoading = true;
       this.retrieveResults().then((results) => {
-        this._isLoading = false;
         // show selected items that are not part of the query at the bottom of the list
         const selectionsOutsideSearch = this.itemsSelected.filter(
           (e) => !results.map((r) => r.uri).includes(e.uri)
@@ -81,7 +76,7 @@ export default class AdvancedVocabSearchBar extends LitElement {
   }
 
   render() {
-    return html` <div>
+    return !this._isLoading? html `<div>
       <vaadin-multi-select-combo-box
         filter="${this.query}"
         .filteredItems="${this.comboboxChoices}"
@@ -90,12 +85,12 @@ export default class AdvancedVocabSearchBar extends LitElement {
         }}"
         .selectedItems=${this.itemsSelected}
         @selected-items-changed=${this.selectItems}
-        item-label-path="uri"
+        item-label-path="trimmedPrefLabel"
         item-value-path="uri"
         item-id-path="uri"
         ${comboBoxRenderer(this._renderRow, [])}
       ></vaadin-multi-select-combo-box>
-    </div>`;
+    </div>`: html `<div>- loading -</div>`;
   }
 
   selectItems(e) {
@@ -106,13 +101,22 @@ export default class AdvancedVocabSearchBar extends LitElement {
       // no new uris in event. Do not propagate the change to avoid infinite loop.
       return;
     }
-    this.itemsSelected = [...e.detail.value];
+    this.itemsSelected = [...e.detail.value.map(e => this._addTrimmedLabel(e))];
     this.dispatchEvent(
       new CustomEvent("selection-changed", {
         bubbles: true,
         detail: this.itemsSelected,
       })
     );
+  }
+
+  _addTrimmedLabel(item) {
+    const firstLabel = Object.entries(item.prefLabel)[0][1][0];
+    item["trimmedPrefLabel"] =
+      firstLabel.length < LABEL_LENGTH
+        ? firstLabel
+        : firstLabel.substring(0, LABEL_LENGTH) + "...";
+    return item;
   }
 
   _renderRow({ uri, prefLabel }) {
@@ -186,8 +190,9 @@ export default class AdvancedVocabSearchBar extends LitElement {
   // with all information (like prefLabel)
   async loadInitialSelections() {
     for (const initial of this.initialSelection) {
-      this.loadInitialSelection(initial);
+      await this.loadInitialSelection(initial);
     }
+    this._isLoading = false;
   }
 
   async loadInitialSelection(uri) {
@@ -221,9 +226,10 @@ export default class AdvancedVocabSearchBar extends LitElement {
       uuid: selection.id,
     };
     selection.prefLabel = this._convertPrefLabelsResourcesToMuSearch(selection["pref-label"]);
+    selection = this._addTrimmedLabel(selection);
     const index = this.itemsSelected.findIndex((s) => s.uri === selection.uri);
-    if (index != -1) {
-      this.itemsSelected[index] = selection;
+    if (index === -1) {
+      this.itemsSelected.push(selection);
     }
   }
 
