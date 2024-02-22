@@ -8,7 +8,10 @@ export default class AdvancedVocabSearchBar extends LitElement {
   static properties = {
     query: { reflect: true },
     itemsSelected: { reflect: true, attribute: "items-selected" },
-    initialSelection: {converter: commaSeparatedConverter, attribute: "initial-selection"},
+    initialSelection: {
+      converter: commaSeparatedConverter,
+      attribute: "initial-selection",
+    },
     sourceDatasets: {
       attribute: "source-datasets",
       reflect: true,
@@ -32,7 +35,6 @@ export default class AdvancedVocabSearchBar extends LitElement {
     `;
   }
 
-
   constructor() {
     super();
     this.query = null;
@@ -47,7 +49,12 @@ export default class AdvancedVocabSearchBar extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.loadInitialSelection();
+    this.itemsSelected = [
+      ...this.initialSelection.map((uri) => {
+        return { uri: uri, prefLabel: "" };
+      }),
+    ];
+    this.loadInitialSelections();
   }
 
   updated(changed) {
@@ -60,8 +67,9 @@ export default class AdvancedVocabSearchBar extends LitElement {
         this._isLoading = false;
         // show selected items that are not part of the query at the bottom of the list
         const selectionsOutsideSearch = this.itemsSelected.filter(
-          (e) => !(results.map((r) => r.uri).includes(e.uri)))
-        this.comboboxChoices = [...results, ...selectionsOutsideSearch]
+          (e) => !results.map((r) => r.uri).includes(e.uri)
+        );
+        this.comboboxChoices = [...results, ...selectionsOutsideSearch];
         this.dispatchEvent(
           new CustomEvent("search-results-changed", {
             bubbles: true,
@@ -85,19 +93,19 @@ export default class AdvancedVocabSearchBar extends LitElement {
         item-label-path="uri"
         item-value-path="uri"
         item-id-path="uri"
-        
         ${comboBoxRenderer(this._renderRow, [])}
       ></vaadin-multi-select-combo-box>
     </div>`;
   }
 
   selectItems(e) {
-    const newUris = e.detail.value.map(e => e.uri);
-    const oldUris = this.itemsSelected.map(s => s.uri);
-    const addedUris = newUris.filter(newUri => !oldUris.includes(newUri));
-    if(newUris.length === oldUris.length && addedUris.length === 0) {
+    console.log(this.itemsSelected);
+    const newUris = e.detail.value.map((e) => e.uri);
+    const oldUris = this.itemsSelected.map((s) => s.uri);
+    const addedUris = newUris.filter((newUri) => !oldUris.includes(newUri));
+    if (newUris.length === oldUris.length && addedUris.length === 0) {
       // no new uris in event. Do not propagate the change to avoid infinite loop.
-      return; 
+      return;
     }
     this.itemsSelected = [...e.detail.value];
     this.dispatchEvent(
@@ -166,36 +174,62 @@ export default class AdvancedVocabSearchBar extends LitElement {
     return results.content;
   }
 
-  async loadInitialSelection() {
-    const query = {};
-    query[`:terms:uri`] =this.initialSelection.join(",");
-    if (this.sourceDatasets.length > 0) {
-      query[":terms:sourceDataset"] = this.sourceDatasets.join(",");
+  // fills in the initial selection (that is just a uri)
+  // with all information (like prefLabel)
+  async loadInitialSelections() {
+    for (const initial of this.initialSelection) {
+      this.loadInitialSelection(initial);
     }
-    if (this.sourceDatasets.length > 0) {
-      query[":terms:sourceDataset"] = this.sourceDatasets.join(",");
+  }
+
+  async loadInitialSelection(uri) {
+    const filters = [];
+    filters.push(["filter[:uri:]", uri]);
+
+    let initialFilterWord = "filter";
+    for (const dataset of this.sourceDatasets) {
+      filters.push([
+        initialFilterWord + "[:or:][:exact:source-dataset]",
+        dataset,
+      ]);
+      initialFilterWord = "";
     }
-    const page = 0;
-    const size = 15;
-    const sort = null; // By relevance
-    const results = await search(
-      "concepts",
-      page,
-      size,
-      sort,
-      query,
-      (searchData) => {
-        const entry = searchData.attributes;
-        entry.id = searchData.id;
-        return entry;
-      },
-      this.searchEndpoint
-    );
-    // todo: index the URI and actually use returned content
-    const items = this.initialSelection.map((uri) => {return {uri: uri, prefLabel: ""}}); //result.content;
-    const alreadySelectedUris = this.itemsSelected.map((s) => s.uri);
-    const extraInitialSelections = items.filter((e) => !(alreadySelectedUris).includes(e.uri))
-    this.itemsSelected = [...this.itemsSelected, ...extraInitialSelections]
+    const endpoint = new URL(`/concepts`, this.searchEndpoint);
+    const params = new URLSearchParams(filters);
+    endpoint.search = params.toString();
+
+    const returned = await (
+      await fetch(endpoint, {
+        headers: {
+          Accept: "application/json",
+        },
+      })
+    ).json();
+    // replace the option in the selection with an object containing all data like prefLabel
+    let selection = returned.data[0];
+    selection = {
+      ...selection.attributes,
+      id: selection.id,
+      uuid: selection.id,
+    };
+    selection.prefLabel = this._convertPrefLabelsResourcesToMuSearch(selection["pref-label"]);
+    const index = this.itemsSelected.findIndex((s) => s.uri === selection.uri);
+    if (index != -1) {
+      this.itemsSelected[index] = selection;
+    }
+  }
+
+  // converts resources structure: [{"content": content, "language": lang}, ...]
+  // to mu-search structure: {"lang": [content], ...}
+  _convertPrefLabelsResourcesToMuSearch(prefLabel) {
+    const searchPrefLabel = {};
+    prefLabel.forEach(({ language, content }) => {
+      if (!searchPrefLabel[language]) {
+        searchPrefLabel[language] = [];
+      }
+      searchPrefLabel[language].push(content);
+    });
+    return searchPrefLabel;
   }
 }
 
