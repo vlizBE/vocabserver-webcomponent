@@ -226,18 +226,22 @@ export default class AdvancedVocabSearchBar extends LitElement {
     const filters = [];
     filters.push(["filter[:uri:]", uri]);
 
-    let initialFilterWord = "filter";
     for (const dataset of this.sourceDatasets) {
       filters.push([
-        initialFilterWord + "[:or:][:exact:source-dataset]",
+        "filter[:or:][:exact:source-dataset]",
         dataset,
       ]);
-      initialFilterWord = "";
     }
-    const returned = await this.fetchResource("concepts", filters);
+    const data = (await this.fetchResource("concepts", filters)).data;
+
+    if(data.length === 0) {
+      console.warn(`the initial selected uri ${uri} was not found or was not part of the specified source datasets.`)
+      return;
+    }
 
     // replace the option in the selection with an object containing all data like prefLabel
-    let selection = returned.data[0];
+    let selection = data[0];
+
     selection = {
       ...selection.attributes,
       id: selection.id,
