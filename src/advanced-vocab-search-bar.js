@@ -136,17 +136,19 @@ export default class AdvancedVocabSearchBar extends LitElement {
 
     const languagesString = this.languagesString || "*";
 
-    const queryKey = languagesString
+    const prefLabelQueryKey = languagesString
       .split(",")
       .map((x) => `prefLabel.${x}`)
       .join(",");
+  
+    const tagsQueryKey = "tagLabels"
 
     const sqs = this.query
       .split(" ")
       .map((word) => `(${word}*|${word})`)
       .join(" ");
 
-    filter[`:sqs:${queryKey}`] = sqs;
+    filter[`:sqs:${prefLabelQueryKey},${tagsQueryKey}`] = sqs;
 
     if (this.tagsFilter.length > 0) {
       filter[`:terms:tagLabels`] = this.tagsFilter.join(",");
