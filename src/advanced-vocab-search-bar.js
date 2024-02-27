@@ -256,11 +256,17 @@ export default class AdvancedVocabSearchBar extends LitElement {
   }
 
   async loadDatasetAlias(uri) {
-    const filters = [];
-    filters.push(["filter[:or:][:exact:alias]", uri]);
-    //filters.push(["filter[:or:][:uri:]", uri]);        
+    let filters = [["filter[:or:][:exact:alias]", uri]];
+    // mu-cl-resources does not handle :or: correctly if one is a :uri: filter.
+    // So doing both filters in one request like this is not possible:
+    // filters.push(["filter[:or:][:uri:]", uri]);
     
     let dataset = (await this.fetchResource("datasets", filters)).data;
+    if(dataset.length === 0) {
+      // try to fetch as the uri of a resource
+      filters = [["filter[:uri:]", uri]]
+      dataset = (await this.fetchResource("datasets", filters)).data;
+    }
     if(dataset.length > 0){
       dataset = {...dataset[0], ...dataset[0].attributes} 
       if(dataset.uri === uri) {
