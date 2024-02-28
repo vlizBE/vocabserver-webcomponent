@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "A simple search bar, compatible with the vocab-search backend",
   "main": "src/vocab-search-bar.js",
+  "module": "src/vocab-search-bar.js",
   "type": "module",
   "scripts": {
     "release": "release-it",
