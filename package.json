@@ -8,7 +8,8 @@
   "scripts": {
     "release": "release-it",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "web-dev-server"
+    "start": "web-dev-server",
+    "prepare": "rollup -c"
   },
   "repository": {
     "type": "git",
