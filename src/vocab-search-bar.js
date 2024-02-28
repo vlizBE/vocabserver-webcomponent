@@ -72,6 +72,10 @@ export default class VocabSearchBar extends LitElement {
         );
       });
     }
+
+    if (changed.has("sourceDatasets")) {
+      this.loadDatasetAliases();
+    }
   }
 
   render() {
