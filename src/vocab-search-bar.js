@@ -24,9 +24,11 @@ export default class VocabSearchBar extends LitElement {
       attribute: "tags-filter",
       converter: commaSeparatedConverter,
     },
-    hideResults: { attribute: "hide-results", type: Boolean },
+    showError: { attribute: "show-error", type: Boolean },
+    showConsoleError: { attribute: "show-console-error", type: Boolean },
     _isLoading: { state: true, attribute: false },
-    comboboxChoices: {state: true, attribute: false}
+    comboboxChoices: {state: true, attribute: false},
+    error: {state: true, attribute: false}
   };
 
   static get styles() {
@@ -48,6 +50,14 @@ export default class VocabSearchBar extends LitElement {
     this.hideResults = false;
     this._isLoading = false;
     this.comboboxChoices = [];
+    this.showError = true;
+    this.showConsoleError = true;
+  }
+
+  warn(message) {
+    if(this.showConsoleError) {
+      console.error(message);
+    }
   }
 
   async connectedCallback() {
@@ -82,7 +92,13 @@ export default class VocabSearchBar extends LitElement {
     }
   }
 
+  _errorSpan(message) {
+    return html `<span class="error-message">
+      ${this.error}
+      </span>`
+  }
   render() {
+    const error = this.error? this._errorSpan(this.error) : html ``;
     return !this._isLoading? html `<div>
       <vaadin-multi-select-combo-box
         filter="${this.query}"
@@ -97,6 +113,7 @@ export default class VocabSearchBar extends LitElement {
         item-id-path="uri"
         ${comboBoxRenderer(this._renderRow, [])}
       ></vaadin-multi-select-combo-box>
+      ${error}
     </div>`: html `<div>- loading -</div>`;
   }
 
@@ -249,7 +266,8 @@ export default class VocabSearchBar extends LitElement {
     const data = (await this.fetchResource("concepts", filters)).data;
 
     if(data.length === 0) {
-      console.warn(`the initial selected uri ${uri} was not found or was not part of the specified source datasets.`)
+      this.error = `The initial selected uri "${uri}" was not found or was not part of the specified source datasets.`;
+      this.warn(this.error);
       return;
     }
 
@@ -281,19 +299,24 @@ export default class VocabSearchBar extends LitElement {
       filters = [["filter[:uri:]", uri]]
       dataset = (await this.fetchResource("datasets", filters)).data;
     }
+
     if(dataset.length > 0){
       dataset = {...dataset[0], ...dataset[0].attributes} 
       if(dataset.uri === uri) {
         //nothing to do, dataset uri already set correctly
+        return;
       }
       if(dataset.alias === uri) {
         //change the alias to actual uri
         const index = this.sourceDatasets.findIndex(d => d === uri)
-        this.sourceDatasets[index] = dataset.uri
+        this.sourceDatasets[index] = dataset.uri;
+        return;
       }
     }
+
     // dataset was not found
-    console.warn(`dataset ${uri} was not found as a dataset or alias of a dataset`);
+    this.error = `dataset "${uri}" was not found as a dataset uri or alias of a dataset`
+    this.warn(this.error);
   }
 
   // converts resources structure: [{"content": content, "language": lang}, ...]

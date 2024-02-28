@@ -43,6 +43,8 @@ With a script tag:
 | `search-endpoint`  | string | ""            | URL of the search backend                                                                       |
 | `languages-string` | string | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
 | `tags-filter`      | string | null          | Specify allowed tags separated by a comma                                                       |
+| `show-error`      | string | true          |  Set if errors should be shown below the search bar. |
+| `show-console-error`      | string | true          |  Set if errors should be shown in the console. |
 
 ## Custom Events
 
