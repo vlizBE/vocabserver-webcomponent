@@ -16,7 +16,8 @@
     "url": "git+https://github.com/vlizBE/vocabserver-webcomponent.git"
   },
   "files": [
-    "src"
+    "src",
+    "dist"
   ],
   "author": "VLIZ",
   "bugs": {
