@@ -39,7 +39,7 @@ With a script tag:
 | ------------------ | ------ | ------------- | ----------------------------------------------------------------------------------------------- |
 | `query`            | string | ""            | The search query. Can set an initial value to used to create the initial results list.          |
 | `initial-selection`            | array (comma-separated string) | ""            | Set the initial selected values. This is a list of uris          |
-| `source-datasets`  | array (comma-separated string) | null          | Restricts the search to data from these datasets                                                |
+| `source-datasets`  | array (comma-separated string) | null          | Restricts the search to data from these datasets. Can use the original dataset URI or an alias of the dataset. |
 | `search-endpoint`  | string | ""            | URL of the search backend                                                                       |
 | `languages-string` | string | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
 | `tags-filter`      | string | null          | Specify allowed tags separated by a comma                                                       |
@@ -47,10 +47,12 @@ With a script tag:
 ## Custom Events
 
 This Web Component dispatches semantic events upon user interaction. You can bind to these events with the standard DOM APIs, such as `addEventListener`. See MDN for more information about [DOM Events](https://developer.mozilla.org/en-US/docs/Web/Events) and [Custom Events](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent).
+
+With `prefLabelType`: `Object{<iso_language_id>: Array<string>}`.
 | Type | `event.detail` type | Description |
 |--------------------------|-------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| `search-results-changed` | `Array<{uri: string, prefLabel: string}>` | Gets dispatched when the search results are changed as a result of the user changing the search parameters. |
-| `selection-changed` | `{uri: string, prefLabel: {<iso_language_id>: string}}` | Gets dispatched when the selection changes after a result is clicked to (de)select it. |
+| `search-results-changed` | `Array<{uri: string, prefLabel: prefLabelType}>` | Gets dispatched when the search results are changed as a result of the user changing the search parameters. |
+| `selection-changed` | `Array<{uri: string, prefLabel: prefLabelType}>` | Gets dispatched when the selection changes after a result is clicked to (de)select it. |
 
 See [`examples/events.html`](https://github.com/vlizBE/vocabserver-webcomponent/blob/main/examples/events.html) for a usage example.
 
