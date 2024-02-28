@@ -296,4 +296,4 @@ export default class VocabSearchBar extends LitElement {
   }
 }
 
-customElements.define("advanced-vocab-search-bar", AdvancedVocabSearchBar);
+customElements.define("vocab-search-bar", VocabSearchBar);
