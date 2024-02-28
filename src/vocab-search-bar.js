@@ -26,6 +26,7 @@ export default class VocabSearchBar extends LitElement {
     },
     hideResults: { attribute: "hide-results", type: Boolean },
     _isLoading: { state: true, attribute: false },
+    comboboxChoices: {state: true, attribute: false}
   };
 
   static get styles() {
@@ -46,6 +47,7 @@ export default class VocabSearchBar extends LitElement {
     this.languageString = null;
     this.hideResults = false;
     this._isLoading = false;
+    this.comboboxChoices = [];
   }
 
   async connectedCallback() {
@@ -56,9 +58,6 @@ export default class VocabSearchBar extends LitElement {
 
   updated(changed) {
     if (changed.has("query")) {
-      if (!this.query) {
-        return;
-      }
       this.retrieveResults().then((results) => {
         // show selected items that are not part of the query at the bottom of the list
         const selectionsOutsideSearch = this.itemsSelected.filter(
@@ -147,10 +146,13 @@ export default class VocabSearchBar extends LitElement {
   
     const tagsQueryKey = "tagLabels"
 
-    const sqs = this.query
-      .split(" ")
-      .map((word) => `(${word}*|${word})`)
-      .join(" ");
+    const sqs =
+      !this.query || this.query?.trim() === ""
+        ? "*"
+        : this.query
+            .split(" ")
+            .map((word) => `(${word}*|${word})`)
+            .join(" ");
 
     filter[`:sqs:${prefLabelQueryKey},${tagsQueryKey}`] = sqs;
 
