@@ -6,23 +6,19 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Search</title>
     <!-- As this is used directly for development web-dev-server, set the src directly to the correct file -->
-    <script type="module" src="src/advanced-vocab-search-bar.js"></script>
+    <script type="module" src="src/vocab-search-bar.js"></script>
     <script>
 
       window.onload = function () {
         const container = document.querySelector("#container");
-        const search = document.querySelector("#search");
-        console.log(search.getAttribute("items-selected"))
 
         container.addEventListener("search-results-changed", (event) => {
-          
-          //console.log(`The search results have changed to: `);
-          //console.log(JSON.stringify(event.detail))
+          console.log(`The search results have changed`);
         });
 
         container.addEventListener("selection-changed", (event) => {
-          console.log(search.getAttribute("items-selected"))
-          //console.log(`A search result was clicked: ${event.detail}`);
+          console.log(`A search result was clicked:`);
+          console.log(JSON.stringify(event.detail))
         });
       };
     </script>
@@ -30,13 +26,13 @@
   <body>
     <h1>Search</h1>
     <div id="container">
-      <advanced-vocab-search-bar
+      <vocab-search-bar
         id="search"
-        query="test"
-        search-endpoint="https://vocabsearch.redpencil.io"
-        initial-selection="http://vocab.nerc.ac.uk/collection/P01/current/ROCKSAER/"
+        search-endpoint="http://localhost:4200"
+        initial-selection="http://vocab.nerc.ac.uk/collection/P01/current/PHXXSP04/"
+        source-datasets="https://my-application.com/dataset/65D7CF7A2AB72E27C1DD8915"
       >
-      </advanced-vocab-search-bar>
+      </vocab-search-bar>
     </div>
   </body>
 </html>
