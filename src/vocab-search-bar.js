@@ -76,6 +76,10 @@ export default class VocabSearchBar extends LitElement {
     if (changed.has("sourceDatasets")) {
       this.loadDatasetAliases();
     }
+
+    if (changed.has("initialSelection")) {
+      this.loadInitialSelections();
+    }
   }
 
   render() {
@@ -197,12 +201,16 @@ export default class VocabSearchBar extends LitElement {
   async loadInitialSelectionsAndAliases() {
     this._isLoading = true;
     await this.loadDatasetAliases();
+    await this.loadInitialSelections();
+    this._isLoading = false;
+  }
+
+  async loadInitialSelections() {
     const promises = [];
     for (const initial of this.initialSelection) {
-       promises.push(this.loadInitialSelection(initial));
+       promises.push(this.loadSelection(initial));
     }
     await Promise.all(promises);
-    this._isLoading = false;
   }
 
   async loadDatasetAliases() {
@@ -228,7 +236,7 @@ export default class VocabSearchBar extends LitElement {
     return results;
   }
 
-  async loadInitialSelection(uri) {
+  async loadSelection(uri) {
     const filters = [];
     filters.push(["filter[:uri:]", uri]);
 

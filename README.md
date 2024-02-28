@@ -38,7 +38,7 @@ With a script tag:
 | Name               | Type   | Default Value | Description                                                                                     |
 | ------------------ | ------ | ------------- | ----------------------------------------------------------------------------------------------- |
 | `query`            | string | ""            | The search query. Can set an initial value to used to create the initial results list.          |
-| `initial-selection`            | array (comma-separated string) | ""            | Set the initial selected values. This is a list of uris          |
+| `initial-selection`            | array (comma-separated string) | ""            | Set the initial selected values. This is a list of URIs. If set after initial load, will append these to the selected items. This will not clear the already selected items.           |
 | `source-datasets`  | array (comma-separated string) | null          | Restricts the search to data from these datasets. Can use the original dataset URI or an alias of the dataset. |
 | `search-endpoint`  | string | ""            | URL of the search backend                                                                       |
 | `languages-string` | string | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
