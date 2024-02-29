@@ -29,7 +29,11 @@ export default class VocabSearchBar extends LitElement {
     showConsoleError: { attribute: "show-console-error", type: Boolean },
     _isLoading: { state: true, attribute: false },
     comboboxChoices: {state: true, attribute: false},
-    error: {state: true, attribute: false}
+    error: {state: true, attribute: false},
+    // The combobox will automatically clear the query (empty string) when an item is selected
+    // To avoid the search results changing to a query with empty string, set this boolean
+    // And skip retrieving new search results if this is set.
+    _skipRedoQuery: {state: true, attribute: false}, 
   };
 
   static get styles() {
@@ -50,6 +54,7 @@ export default class VocabSearchBar extends LitElement {
     this.languageString = null;
     this.hideResults = false;
     this._isLoading = false;
+    this._skipRedoQuery = false;
     this.comboboxChoices = [];
     this.showError = true;
     this.showConsoleError = true;
@@ -68,7 +73,7 @@ export default class VocabSearchBar extends LitElement {
   }
 
   updated(changed) {
-    if (changed.has("query")) {
+    if (changed.has("query") && !this._skipRedoQuery) {
       this.retrieveResults().then((results) => {
         // show selected items that are not part of the query at the bottom of the list
         const selectionsOutsideSearch = this.itemsSelected.filter(
@@ -82,6 +87,8 @@ export default class VocabSearchBar extends LitElement {
           })
         );
       });
+    } else {
+      this._skipRedoQuery = false;
     }
 
     if (changed.has("sourceDatasets")) {
@@ -133,6 +140,7 @@ export default class VocabSearchBar extends LitElement {
         detail: this.itemsSelected,
       })
     );
+    this._skipRedoQuery = true;
   }
 
   _addTrimmedLabel(item) {
