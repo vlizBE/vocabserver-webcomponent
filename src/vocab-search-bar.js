@@ -80,25 +80,18 @@ export default class VocabSearchBar extends LitElement {
 
   updated(changed) {
     if (changed.has("query") && !this._skipRedoQuery) {
-      this.retrieveResults().then((results) => {
-        // show selected items that are not part of the query at the bottom of the list
-        const selectionsOutsideSearch = this.itemsSelected.filter(
-          (e) => !results.map((r) => r.uri).includes(e.uri)
-        );
-        this.comboboxChoices = [...results, ...selectionsOutsideSearch];
-        this.dispatchEvent(
-          new CustomEvent("search-results-changed", {
-            bubbles: true,
-            detail: results,
-          })
-        );
-      });
+      this.retrieveAndShowSearchResults();
     } else {
       this._skipRedoQuery = false;
     }
 
-    if (changed.has("source-vocabularies")) {
-      this.loadVocabAliases();
+    if(changed.has("sourceDatasets")) {
+      this.retrieveAndShowSearchResults();
+    }
+
+    if (changed.has("sourceVocabularies")) {
+      // search results might be different for other vocabularies
+      this.loadVocabAliases().then(() => this.retrieveAndShowSearchResults());
     }
 
     if (changed.has("initialSelection")) {
@@ -229,11 +222,11 @@ export default class VocabSearchBar extends LitElement {
     return filter;
   }
 
-  async retrieveResults() {
+  async retrieveAndShowSearchResults() {
     const page = 0;
     const size = 15;
     const sort = null; // By relevance
-    const results = await search(
+    const fetchedResults = await search(
       "concepts",
       page,
       size,
@@ -247,8 +240,18 @@ export default class VocabSearchBar extends LitElement {
       },
       this.searchEndpoint
     );
-
-    return results.content;
+    const results = fetchedResults.content;
+    // show selected items that are not part of the query at the bottom of the list
+    const selectionsOutsideSearch = this.itemsSelected.filter(
+      (e) => !results.map((r) => r.uri).includes(e.uri)
+    );
+    this.comboboxChoices = [...results, ...selectionsOutsideSearch];
+    this.dispatchEvent(
+      new CustomEvent("search-results-changed", {
+        bubbles: true,
+        detail: results,
+      })
+    );
   }
 
   // fills in the initial selection (that is just a uri)
