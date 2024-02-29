@@ -39,7 +39,8 @@ With a script tag:
 | ------------------ | ------ | ------------- | ----------------------------------------------------------------------------------------------- |
 | `query`            | string | ""            | The search query. Can set an initial value to used to create the initial results list.          |
 | `initial-selection`            | array (comma-separated string) | ""            | Set the initial selected values. This is a list of URIs. If set after initial load, will append these to the selected items. This will not clear the already selected items.           |
-| `source-datasets`  | array (comma-separated string) | null          | Restricts the search to data from these datasets. Can use the original dataset URI or an alias of the dataset. |
+| `source-datasets`  | array (comma-separated string) | null          | Restricts the search to data from these datasets. If empty, allow all datasets part of `source-vocabularies`. |
+| `source-vocabularies`  | array (comma-separated string) | null          | Restricts the search to data from these vocabularies. Can use the original vocabulary URI or an alias of the vocabulary. If `source-datasets` is set, the search will be restricted to terms in these vocabularies AND the `source-datasets`. If empty, will search in all vocabularies. |
 | `search-endpoint`  | string | ""            | URL of the search backend                                                                       |
 | `languages-string` | string | "\*"          | Comma separated list of ISO languages codes. The search will only show terms in these languages |
 | `tags-filter`      | string | null          | Specify allowed tags separated by a comma                                                       |

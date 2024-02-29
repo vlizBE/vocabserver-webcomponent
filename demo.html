@@ -13,12 +13,13 @@
         const container = document.querySelector("#container");
 
         container.addEventListener("search-results-changed", (event) => {
+          // console.log(JSON.stringify(event.detail))
           console.log(`The search results have changed`);
         });
 
         container.addEventListener("selection-changed", (event) => {
           console.log(`A search result was clicked:`);
-          console.log(JSON.stringify(event.detail))
+          // console.log(JSON.stringify(event.detail))
         });
       };
     </script>
@@ -29,8 +30,7 @@
       <vocab-search-bar
         id="search"
         search-endpoint="http://localhost:4200"
-        initial-selection="http://vocab.nerc.ac.uk/collection/P01/current/PHXXSP04/"
-        source-datasets="https://my-application.com/dataset/65D7CF7A2AB72E27C1DD8915"
+        source-vocabularies="https://my-application.com/vocabulary-alias/test1"
       >
       </vocab-search-bar>
     </div>

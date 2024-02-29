@@ -19,6 +19,11 @@ export default class VocabSearchBar extends LitElement {
       reflect: true,
       converter: commaSeparatedConverter,
     },
+    sourceVocabularies: {
+      attribute: "source-vocabularies",
+      reflect: true,
+      converter: commaSeparatedConverter,
+    },
     searchEndpoint: { attribute: "search-endpoint" },
     languagesString: { attribute: "languages-string" },
     tagsFilter: {
@@ -51,6 +56,7 @@ export default class VocabSearchBar extends LitElement {
     this.initialSelection = [];
     this.tagsFilter = [];
     this.sourceDatasets = [];
+    this.sourceVocabularies = [];
     this.languageString = null;
     this.hideResults = false;
     this._isLoading = false;
@@ -91,8 +97,8 @@ export default class VocabSearchBar extends LitElement {
       this._skipRedoQuery = false;
     }
 
-    if (changed.has("sourceDatasets")) {
-      this.loadDatasetAliases();
+    if (changed.has("source-vocabularies")) {
+      this.loadVocabAliases();
     }
 
     if (changed.has("initialSelection")) {
@@ -216,6 +222,10 @@ export default class VocabSearchBar extends LitElement {
       filter[":terms:sourceDataset"] = this.sourceDatasets.join(",");
     }
 
+    if (this.sourceVocabularies.length > 0) {
+      filter[":terms:vocabulary"] = this.sourceVocabularies.join(",");
+    }
+
     return filter;
   }
 
@@ -245,7 +255,7 @@ export default class VocabSearchBar extends LitElement {
   // with all information (like prefLabel)
   async loadInitialSelectionsAndAliases() {
     this._isLoading = true;
-    await this.loadDatasetAliases();
+    await this.loadVocabAliases();
     await this.loadInitialSelections();
     this._isLoading = false;
   }
@@ -258,10 +268,10 @@ export default class VocabSearchBar extends LitElement {
     await Promise.all(promises);
   }
 
-  async loadDatasetAliases() {
+  async loadVocabAliases() {
     const promises = [];
-    for(const datasetUri of this.sourceDatasets) { 
-      promises.push(this.loadDatasetAlias(datasetUri));
+    for(const vocabUri of this.sourceVocabularies) { 
+      promises.push(this.loadVocabAlias(vocabUri));
     }
     await Promise.all(promises);
   }
@@ -294,7 +304,7 @@ export default class VocabSearchBar extends LitElement {
     const data = (await this.fetchResource("concepts", filters)).data;
 
     if(data.length === 0) {
-      this.error = `The initial selected uri "${uri}" was not found or was not part of the specified source datasets.`;
+      this.error = `The initial selected uri "${uri}" was not found or was not part of the specified source datasets and vocabs.`;
       this.warn(this.error);
       return;
     }
@@ -315,35 +325,35 @@ export default class VocabSearchBar extends LitElement {
     }
   }
 
-  async loadDatasetAlias(uri) {
+  async loadVocabAlias(uri) {
     let filters = [["filter[:or:][:exact:alias]", uri]];
     // mu-cl-resources does not handle :or: correctly if one is a :uri: filter.
     // So doing both filters in one request like this is not possible:
     // filters.push(["filter[:or:][:uri:]", uri]);
     
-    let dataset = (await this.fetchResource("datasets", filters)).data;
-    if(dataset.length === 0) {
+    let vocab = (await this.fetchResource("vocabularies", filters)).data;
+    if(vocab.length === 0) {
       // try to fetch as the uri of a resource
       filters = [["filter[:uri:]", uri]]
-      dataset = (await this.fetchResource("datasets", filters)).data;
+      vocab = (await this.fetchResource("vocabularies", filters)).data;
     }
 
-    if(dataset.length > 0){
-      dataset = {...dataset[0], ...dataset[0].attributes} 
-      if(dataset.uri === uri) {
+    if(vocab.length > 0){
+      vocab = {...vocab[0], ...vocab[0].attributes} 
+      if(vocab.uri === uri) {
         //nothing to do, dataset uri already set correctly
         return;
       }
-      if(dataset.alias === uri) {
+      if(vocab.alias === uri) {
         //change the alias to actual uri
-        const index = this.sourceDatasets.findIndex(d => d === uri)
-        this.sourceDatasets[index] = dataset.uri;
+        const index = this.sourceVocabularies.findIndex(d => d === uri)
+        this.sourceVocabularies[index] = vocab.uri;
         return;
       }
     }
 
-    // dataset was not found
-    this.error = `dataset "${uri}" was not found as a dataset uri or alias of a dataset`
+    // vocab was not found
+    this.error = `vocab "${uri}" was not found as a vocab uri or alias of a vocab`
     this.warn(this.error);
   }
 
