@@ -172,11 +172,11 @@ export default class VocabSearchBar extends LitElement {
       <div class="text" style="flex-grow: 1;"> 
         ${Object.entries(prefLabel).map((x) => 
           html`
-            <li>
+            <li class="pref-label">
               ${x[0]}: ${this.withHighlight(x[1][0], highlight?.[`prefLabel.${x[0]}`])}
             </li>`)}
         ${highlight?.["tagLabels"]? html`
-            <li>
+            <li class="tag-label">
                ${unsafeHTML(highlight["tagLabels"].join(", "))}
             </li>`: ""}
       </div>
