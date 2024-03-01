@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Search</title>
+    <!-- As this is used directly for development web-dev-server, set the src directly to the correct file -->
+    <script type="module" src="src/vocab-search-bar.js"></script>
+    <script>
+
+      window.onload = function () {
+        const container = document.querySelector("#container");
+
+        container.addEventListener("search-results-changed", (event) => {
+          // console.log(JSON.stringify(event.detail))
+          console.log(`The search results have changed`);
+        });
+
+        container.addEventListener("selection-changed", (event) => {
+          console.log(`A search result was clicked:`);
+          // console.log(JSON.stringify(event.detail))
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <h1>Search</h1>
+    <div id="container">
+      <vocab-search-bar
+        id="search"
+        search-endpoint="http://localhost:4200"
+        source-vocabularies="https://my-application.com/vocabulary-alias/test1"
+      >
+      </vocab-search-bar>
+    </div>
+  </body>
+</html>
