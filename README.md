@@ -38,7 +38,7 @@ With a script tag:
 | Name               | Type   | Default Value | Description                                                                                     |
 | ------------------ | ------ | ------------- | ----------------------------------------------------------------------------------------------- |
 | `query`            | string | ""            | The search query. Can set an initial value to used to create the initial results list.          |
-| `initial-selection`            | array (comma-separated string) | ""            | Set the initial selected values. This is a list of URIs. If set after initial load, will append these to the selected items. This will not clear the already selected items.           |
+| `set-selection`            | array (comma-separated string) | ""            | Set the selected values. This is a list of URIs. The full selection will change whenever this is updated.        |
 | `source-datasets`  | array (comma-separated string) | null          | Restricts the search to data from these datasets. If empty, allow all datasets part of `source-vocabularies`. |
 | `source-vocabularies`  | array (comma-separated string) | null          | Restricts the search to data from these vocabularies. Can use the original vocabulary URI or an alias of the vocabulary. If `source-datasets` is set, the search will be restricted to terms in these vocabularies AND the `source-datasets`. If empty, will search in all vocabularies. |
 | `search-endpoint`  | string | ""            | URL of the search backend                                                                       |

@@ -10,9 +10,9 @@ export default class VocabSearchBar extends LitElement {
   static properties = {
     query: { reflect: true },
     itemsSelected: {state: true},
-    initialSelection: {
+    setSelection: {
       converter: commaSeparatedConverter,
-      attribute: "initial-selection",
+      attribute: "set-selection",
     },
     sourceDatasets: {
       attribute: "source-datasets",
@@ -53,7 +53,7 @@ export default class VocabSearchBar extends LitElement {
     super();
     this.query = null;
     this.itemsSelected = [];
-    this.initialSelection = [];
+    this.setSelection = [];
     this.tagsFilter = [];
     this.sourceDatasets = [];
     this.sourceVocabularies = [];
@@ -75,10 +75,12 @@ export default class VocabSearchBar extends LitElement {
   async connectedCallback() {
     super.connectedCallback();
     this._isLoading = true;
-    this.loadInitialSelectionsAndAliases();
+    this.loadSetSelectionsAndAliases();
   }
 
   updated(changed) {
+    if(this._isLoading) { return; }
+
     if (changed.has("query") && !this._skipRedoQuery) {
       this.retrieveAndShowSearchResults();
     } else {
@@ -94,8 +96,10 @@ export default class VocabSearchBar extends LitElement {
       this.loadVocabAliases().then(() => this.retrieveAndShowSearchResults());
     }
 
-    if (changed.has("initialSelection")) {
-      this.loadInitialSelections();
+    if (changed.has("setSelection")) {
+      this._isLoading = true;
+      this.itemsSelected = [];
+      this.loadSetSelections().then(() => {this._isLoading = false});
     }
   }
 
@@ -254,19 +258,19 @@ export default class VocabSearchBar extends LitElement {
     );
   }
 
-  // fills in the initial selection (that is just a uri)
+  // fills in the set selection (that is just a uri)
   // with all information (like prefLabel)
-  async loadInitialSelectionsAndAliases() {
+  async loadSetSelectionsAndAliases() {
     this._isLoading = true;
     await this.loadVocabAliases();
-    await this.loadInitialSelections();
+    await this.loadSetSelections();
     this._isLoading = false;
   }
 
-  async loadInitialSelections() {
+  async loadSetSelections() {
     const promises = [];
-    for (const initial of this.initialSelection) {
-       promises.push(this.loadSelection(initial));
+    for (const selection of this.setSelection) {
+       promises.push(this.loadSelection(selection));
     }
     await Promise.all(promises);
   }
