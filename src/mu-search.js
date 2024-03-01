@@ -31,7 +31,7 @@ async function muSearch(
     Object.entries({
       "page[size]": size,
       "page[number]": page,
-      "highlight[:fields:]": '*',
+      "highlight[:fields:]": "*",
       // eslint-disable-next-line camelcase
       // collapse_uuids: 't',
     })

@@ -1,19 +1,19 @@
 import search from "./mu-search.js";
 import { LitElement, html, css } from "lit";
 import { commaSeparatedConverter } from "./attribute-converters.js";
-import '@vaadin/multi-select-combo-box';
-import {comboBoxRenderer} from '@vaadin/combo-box/lit';
-import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
+import "@vaadin/multi-select-combo-box";
+import { comboBoxRenderer } from "@vaadin/combo-box/lit";
+import { unsafeHTML } from "lit-html/directives/unsafe-html.js";
 
 const LABEL_LENGTH = 15;
 export default class VocabSearchBar extends LitElement {
   static properties = {
     query: { reflect: true },
-    itemsSelected: {state: true},
+    itemsSelected: { state: true },
     selections: {
       converter: commaSeparatedConverter,
       attribute: "selections",
-      reflect: true
+      reflect: true,
     },
     sourceDatasets: {
       attribute: "source-datasets",
@@ -34,12 +34,12 @@ export default class VocabSearchBar extends LitElement {
     showError: { attribute: "show-error", type: Boolean },
     showConsoleError: { attribute: "show-console-error", type: Boolean },
     _isLoading: { state: true, attribute: false },
-    comboboxChoices: {state: true, attribute: false},
-    error: {state: true, attribute: false},
+    comboboxChoices: { state: true, attribute: false },
+    error: { state: true, attribute: false },
     // The combobox will automatically clear the query (empty string) when an item is selected
     // To avoid the search results changing to a query with empty string, set this boolean
     // And skip retrieving new search results if this is set.
-    _selectionWasChanged: {state: true, attribute: false}, 
+    _selectionWasChanged: { state: true, attribute: false },
   };
 
   static get styles() {
@@ -69,7 +69,7 @@ export default class VocabSearchBar extends LitElement {
   }
 
   warn(message) {
-    if(this.showConsoleError) {
+    if (this.showConsoleError) {
       console.error(message);
     }
   }
@@ -81,14 +81,18 @@ export default class VocabSearchBar extends LitElement {
   }
 
   updated(changed) {
-    if(this._isLoading) { return; }
+    if (this._isLoading) {
+      return;
+    }
 
     // only reload if selections attribute was changed externally
     if (changed.has("selections") && !this._selectionWasChanged) {
       this._isLoading = true;
       this.previousSelectedItems = this.itemsSelected;
       this.itemsSelected = [];
-      this.loadSetSelections().then(() => {this._isLoading = false});
+      this.loadSetSelections().then(() => {
+        this._isLoading = false;
+      });
     }
 
     if (changed.has("query") && !this._selectionWasChanged) {
@@ -97,7 +101,7 @@ export default class VocabSearchBar extends LitElement {
       this._selectionWasChanged = false;
     }
 
-    if(changed.has("sourceDatasets")) {
+    if (changed.has("sourceDatasets")) {
       this.retrieveAndShowSearchResults();
     }
 
@@ -108,28 +112,28 @@ export default class VocabSearchBar extends LitElement {
   }
 
   _errorSpan(message) {
-    return html `<span class="error-message">
-      ${this.error}
-      </span>`
+    return html`<span class="error-message"> ${this.error} </span>`;
   }
   render() {
-    const error = this.error? this._errorSpan(this.error) : html ``;
-    return !this._isLoading? html `<div>
-      <vaadin-multi-select-combo-box
-        filter="${this.query}"
-        .filteredItems="${this.comboboxChoices}"
-        @filter-changed="${(event) => {
-          this.query = event.detail.value;
-        }}"
-        .selectedItems=${this.itemsSelected}
-        @selected-items-changed=${this.selectItems}
-        item-label-path="trimmedPrefLabel"
-        item-value-path="uri"
-        item-id-path="uri"
-        ${comboBoxRenderer(this._renderRow, [])}
-      ></vaadin-multi-select-combo-box>
-      ${error}
-    </div>`: html `<div>- loading -</div>`;
+    const error = this.error ? this._errorSpan(this.error) : html``;
+    return !this._isLoading
+      ? html`<div>
+          <vaadin-multi-select-combo-box
+            filter="${this.query}"
+            .filteredItems="${this.comboboxChoices}"
+            @filter-changed="${(event) => {
+              this.query = event.detail.value;
+            }}"
+            .selectedItems=${this.itemsSelected}
+            @selected-items-changed=${this.selectItems}
+            item-label-path="trimmedPrefLabel"
+            item-value-path="uri"
+            item-id-path="uri"
+            ${comboBoxRenderer(this._renderRow, [])}
+          ></vaadin-multi-select-combo-box>
+          ${error}
+        </div>`
+      : html`<div>- loading -</div>`;
   }
 
   selectItems(e) {
@@ -140,7 +144,9 @@ export default class VocabSearchBar extends LitElement {
       // no new uris in event. Do not propagate the change to avoid infinite loop.
       return;
     }
-    this.itemsSelected = [...e.detail.value.map(e => this._addTrimmedLabel(e))];
+    this.itemsSelected = [
+      ...e.detail.value.map((e) => this._addTrimmedLabel(e)),
+    ];
     this.dispatchEvent(
       new CustomEvent("selection-changed", {
         bubbles: true,
@@ -165,33 +171,38 @@ export default class VocabSearchBar extends LitElement {
     // which seems to not work for the rendered choice list.
     // note: might be fixable with more research.
     return html`
-    <div class="combo-box-choice" style="display: flex; align-items: left;">
-      <div class="icon" style="margin-right: 25px; cursor: pointer;">
-        <a href=${uri} target="_blank">🔗</a>
+      <div class="combo-box-choice" style="display: flex; align-items: left;">
+        <div class="icon" style="margin-right: 25px; cursor: pointer;">
+          <a href=${uri} target="_blank">🔗</a>
+        </div>
+        <div class="text" style="flex-grow: 1;">
+          ${Object.entries(prefLabel).map(
+            (x) =>
+              html` <li class="pref-label">
+                ${x[0]}:
+                ${this.withHighlight(x[1][0], highlight?.[`prefLabel.${x[0]}`])}
+              </li>`
+          )}
+          ${highlight?.["tagLabels"]
+            ? html` <li class="tag-label">
+                ${unsafeHTML(highlight["tagLabels"].join(", "))}
+              </li>`
+            : ""}
+        </div>
       </div>
-      <div class="text" style="flex-grow: 1;"> 
-        ${Object.entries(prefLabel).map((x) => 
-          html`
-            <li class="pref-label">
-              ${x[0]}: ${this.withHighlight(x[1][0], highlight?.[`prefLabel.${x[0]}`])}
-            </li>`)}
-        ${highlight?.["tagLabels"]? html`
-            <li class="tag-label">
-               ${unsafeHTML(highlight["tagLabels"].join(", "))}
-            </li>`: ""}
-      </div>
-    </div>
     `;
   }
 
   withHighlight(originalString, highlights) {
-    if(!highlights) return originalString;
-    for(const highlight of highlights) {
-      const subStringOfHiglight = highlight.replaceAll("<em>", "").replaceAll("</em>", "");
-      
+    if (!highlights) return originalString;
+    for (const highlight of highlights) {
+      const subStringOfHiglight = highlight
+        .replaceAll("<em>", "")
+        .replaceAll("</em>", "");
+
       originalString = originalString.replace(subStringOfHiglight, highlight);
     }
-    return html `${unsafeHTML(originalString)}`;
+    return html`${unsafeHTML(originalString)}`;
   }
 
   createFilter() {
@@ -203,8 +214,8 @@ export default class VocabSearchBar extends LitElement {
       .split(",")
       .map((x) => `prefLabel.${x}`)
       .join(",");
-  
-    const tagsQueryKey = "tagLabels"
+
+    const tagsQueryKey = "tagLabels";
 
     const sqs =
       !this.query || this.query?.trim() === ""
@@ -275,14 +286,14 @@ export default class VocabSearchBar extends LitElement {
   async loadSetSelections() {
     const promises = [];
     for (const selection of this.selections) {
-       promises.push(this.loadSelection(selection));
+      promises.push(this.loadSelection(selection));
     }
     await Promise.all(promises);
   }
 
   async loadVocabAliases() {
     const promises = [];
-    for(const vocabUri of this.sourceVocabularies) { 
+    for (const vocabUri of this.sourceVocabularies) {
       promises.push(this.loadVocabAlias(vocabUri));
     }
     await Promise.all(promises);
@@ -306,11 +317,15 @@ export default class VocabSearchBar extends LitElement {
   async loadSelection(uri) {
     // check if item alrady part of selection list
     const index = this.itemsSelected.findIndex((s) => s.uri === uri);
-    if (index !== -1) { return }
+    if (index !== -1) {
+      return;
+    }
 
     // see if item was selected before. If so, the needed data is already present
-    const alreadyRetrievedItem = this.previousSelectedItems.find(item => item.uri === uri)
-    if(alreadyRetrievedItem) {
+    const alreadyRetrievedItem = this.previousSelectedItems.find(
+      (item) => item.uri === uri
+    );
+    if (alreadyRetrievedItem) {
       this.itemsSelected.push(alreadyRetrievedItem);
       return;
     }
@@ -320,14 +335,11 @@ export default class VocabSearchBar extends LitElement {
     filters.push(["filter[:uri:]", uri]);
 
     for (const dataset of this.sourceDatasets) {
-      filters.push([
-        "filter[:or:][:exact:source-dataset]",
-        dataset,
-      ]);
+      filters.push(["filter[:or:][:exact:source-dataset]", dataset]);
     }
     const data = (await this.fetchResource("concepts", filters)).data;
 
-    if(data.length === 0) {
+    if (data.length === 0) {
       this.error = `The initial selected uri "${uri}" was not found or was not part of the specified source datasets and vocabs.`;
       this.warn(this.error);
       return;
@@ -341,7 +353,9 @@ export default class VocabSearchBar extends LitElement {
       id: selection.id,
       uuid: selection.id,
     };
-    selection.prefLabel = this._convertPrefLabelsResourcesToMuSearch(selection["pref-label"]);
+    selection.prefLabel = this._convertPrefLabelsResourcesToMuSearch(
+      selection["pref-label"]
+    );
     selection = this._addTrimmedLabel(selection);
     this.itemsSelected.push(selection);
   }
@@ -351,30 +365,30 @@ export default class VocabSearchBar extends LitElement {
     // mu-cl-resources does not handle :or: correctly if one is a :uri: filter.
     // So doing both filters in one request like this is not possible:
     // filters.push(["filter[:or:][:uri:]", uri]);
-    
+
     let vocab = (await this.fetchResource("vocabularies", filters)).data;
-    if(vocab.length === 0) {
+    if (vocab.length === 0) {
       // try to fetch as the uri of a resource
-      filters = [["filter[:uri:]", uri]]
+      filters = [["filter[:uri:]", uri]];
       vocab = (await this.fetchResource("vocabularies", filters)).data;
     }
 
-    if(vocab.length > 0){
-      vocab = {...vocab[0], ...vocab[0].attributes} 
-      if(vocab.uri === uri) {
+    if (vocab.length > 0) {
+      vocab = { ...vocab[0], ...vocab[0].attributes };
+      if (vocab.uri === uri) {
         //nothing to do, dataset uri already set correctly
         return;
       }
-      if(vocab.alias === uri) {
+      if (vocab.alias === uri) {
         //change the alias to actual uri
-        const index = this.sourceVocabularies.findIndex(d => d === uri)
+        const index = this.sourceVocabularies.findIndex((d) => d === uri);
         this.sourceVocabularies[index] = vocab.uri;
         return;
       }
     }
 
     // vocab was not found
-    this.error = `vocab "${uri}" was not found as a vocab uri or alias of a vocab`
+    this.error = `vocab "${uri}" was not found as a vocab uri or alias of a vocab`;
     this.warn(this.error);
   }
 
