@@ -10,9 +10,10 @@ export default class VocabSearchBar extends LitElement {
   static properties = {
     query: { reflect: true },
     itemsSelected: {state: true},
-    setSelection: {
+    selections: {
       converter: commaSeparatedConverter,
-      attribute: "set-selection",
+      attribute: "selections",
+      reflect: true
     },
     sourceDatasets: {
       attribute: "source-datasets",
@@ -38,7 +39,7 @@ export default class VocabSearchBar extends LitElement {
     // The combobox will automatically clear the query (empty string) when an item is selected
     // To avoid the search results changing to a query with empty string, set this boolean
     // And skip retrieving new search results if this is set.
-    _skipRedoQuery: {state: true, attribute: false}, 
+    _selectionWasChanged: {state: true, attribute: false}, 
   };
 
   static get styles() {
@@ -53,17 +54,18 @@ export default class VocabSearchBar extends LitElement {
     super();
     this.query = null;
     this.itemsSelected = [];
-    this.setSelection = [];
+    this.selections = [];
     this.tagsFilter = [];
     this.sourceDatasets = [];
     this.sourceVocabularies = [];
     this.languageString = null;
     this.hideResults = false;
     this._isLoading = false;
-    this._skipRedoQuery = false;
+    this._selectionWasChanged = false;
     this.comboboxChoices = [];
     this.showError = true;
     this.showConsoleError = true;
+    this.previousSelectedItems = [];
   }
 
   warn(message) {
@@ -81,10 +83,18 @@ export default class VocabSearchBar extends LitElement {
   updated(changed) {
     if(this._isLoading) { return; }
 
-    if (changed.has("query") && !this._skipRedoQuery) {
+    // only reload if selections attribute was changed externally
+    if (changed.has("selections") && !this._selectionWasChanged) {
+      this._isLoading = true;
+      this.previousSelectedItems = this.itemsSelected;
+      this.itemsSelected = [];
+      this.loadSetSelections().then(() => {this._isLoading = false});
+    }
+
+    if (changed.has("query") && !this._selectionWasChanged) {
       this.retrieveAndShowSearchResults();
     } else {
-      this._skipRedoQuery = false;
+      this._selectionWasChanged = false;
     }
 
     if(changed.has("sourceDatasets")) {
@@ -94,12 +104,6 @@ export default class VocabSearchBar extends LitElement {
     if (changed.has("sourceVocabularies")) {
       // search results might be different for other vocabularies
       this.loadVocabAliases().then(() => this.retrieveAndShowSearchResults());
-    }
-
-    if (changed.has("setSelection")) {
-      this._isLoading = true;
-      this.itemsSelected = [];
-      this.loadSetSelections().then(() => {this._isLoading = false});
     }
   }
 
@@ -143,7 +147,8 @@ export default class VocabSearchBar extends LitElement {
         detail: this.itemsSelected,
       })
     );
-    this._skipRedoQuery = true;
+    this.selections = this.itemsSelected.map((i) => i.uri);
+    this._selectionWasChanged = true;
   }
 
   _addTrimmedLabel(item) {
@@ -269,7 +274,7 @@ export default class VocabSearchBar extends LitElement {
 
   async loadSetSelections() {
     const promises = [];
-    for (const selection of this.setSelection) {
+    for (const selection of this.selections) {
        promises.push(this.loadSelection(selection));
     }
     await Promise.all(promises);
@@ -299,6 +304,18 @@ export default class VocabSearchBar extends LitElement {
   }
 
   async loadSelection(uri) {
+    // check if item alrady part of selection list
+    const index = this.itemsSelected.findIndex((s) => s.uri === uri);
+    if (index !== -1) { return }
+
+    // see if item was selected before. If so, the needed data is already present
+    const alreadyRetrievedItem = this.previousSelectedItems.find(item => item.uri === uri)
+    if(alreadyRetrievedItem) {
+      this.itemsSelected.push(alreadyRetrievedItem);
+      return;
+    }
+
+    // have to fetch the data for this uri
     const filters = [];
     filters.push(["filter[:uri:]", uri]);
 
@@ -326,10 +343,7 @@ export default class VocabSearchBar extends LitElement {
     };
     selection.prefLabel = this._convertPrefLabelsResourcesToMuSearch(selection["pref-label"]);
     selection = this._addTrimmedLabel(selection);
-    const index = this.itemsSelected.findIndex((s) => s.uri === selection.uri);
-    if (index === -1) {
-      this.itemsSelected.push(selection);
-    }
+    this.itemsSelected.push(selection);
   }
 
   async loadVocabAlias(uri) {
