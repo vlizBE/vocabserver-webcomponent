@@ -26,6 +26,7 @@ export default class VocabSearchBar extends LitElement {
       converter: commaSeparatedConverter,
     },
     searchEndpoint: { attribute: "search-endpoint" },
+    isSingleSelect: { attribute: "single-select", type: Boolean },
     languagesString: { attribute: "languages-string" },
     tagsFilter: {
       attribute: "tags-filter",
@@ -109,6 +110,13 @@ export default class VocabSearchBar extends LitElement {
       // search results might be different for other vocabularies
       this.loadVocabAliases().then(() => this.retrieveAndShowSearchResults());
     }
+
+    if(changed.has("isSingleSelect") && this.isSingleSelect === true) {
+      if(this.itemsSelected.length >= 1){
+        this.itemsSelected = [this.itemsSelected[0]];
+        this.selections = [this.itemsSelected.uri];
+      }
+    }
   }
 
   _errorSpan(message) {
@@ -147,6 +155,10 @@ export default class VocabSearchBar extends LitElement {
     this.itemsSelected = [
       ...e.detail.value.map((e) => this._addTrimmedLabel(e)),
     ];
+    if(this.isSingleSelect) {
+      const addedItem = this.itemsSelected.find(e => e.uri === addedUris[0])
+      this.itemsSelected = addedItem? [addedItem] : []
+    }
     this.dispatchEvent(
       new CustomEvent("selection-changed", {
         bubbles: true,

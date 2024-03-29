@@ -46,6 +46,7 @@ With a script tag:
 | `tags-filter`      | string | null          | Specify allowed tags separated by a comma                                                       |
 | `show-error`      | string | true          |  Set if errors should be shown below the search bar. |
 | `show-console-error`      | string | true          |  Set if errors should be shown in the console. |
+| `single-select`      | string | true          |  Set if the selections should only allow one value at a time. |
 
 ## Custom Events
 
