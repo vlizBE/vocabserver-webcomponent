@@ -111,8 +111,8 @@ export default class VocabSearchBar extends LitElement {
       this.loadVocabAliases().then(() => this.retrieveAndShowSearchResults());
     }
 
-    if(changed.has("isSingleSelect") && this.isSingleSelect === true) {
-      if(this.itemsSelected.length >= 1){
+    if (changed.has("isSingleSelect") && this.isSingleSelect === true) {
+      if (this.itemsSelected.length >= 1) {
         this.itemsSelected = [this.itemsSelected[0]];
         this.selections = [this.itemsSelected.uri];
       }
@@ -155,9 +155,9 @@ export default class VocabSearchBar extends LitElement {
     this.itemsSelected = [
       ...e.detail.value.map((e) => this._addTrimmedLabel(e)),
     ];
-    if(this.isSingleSelect) {
-      const addedItem = this.itemsSelected.find(e => e.uri === addedUris[0])
-      this.itemsSelected = addedItem? [addedItem] : []
+    if (this.isSingleSelect) {
+      const addedItem = this.itemsSelected.find((e) => e.uri === addedUris[0]);
+      this.itemsSelected = addedItem ? [addedItem] : [];
     }
     this.dispatchEvent(
       new CustomEvent("selection-changed", {
@@ -273,6 +273,14 @@ export default class VocabSearchBar extends LitElement {
       this.searchEndpoint
     );
     const results = fetchedResults.content;
+    // The URIs in results are the internal used URIs for unification
+    // Users are interested in the actual dataset URIs
+    // To avoid this distinction, set the "uri" to this "datasetUri"
+    // And make the existance of an internal URI transparant to the rest of the code.
+    results.forEach((r) => {
+      r.uri = r.datasetEntityUri;
+    });
+
     // show selected items that are not part of the query at the bottom of the list
     const selectionsOutsideSearch = this.itemsSelected.filter(
       (e) => !results.map((r) => r.uri).includes(e.uri)
@@ -327,7 +335,7 @@ export default class VocabSearchBar extends LitElement {
   }
 
   async loadSelection(uri) {
-    // check if item alrady part of selection list
+    // check if item already part of selection list
     const index = this.itemsSelected.findIndex((s) => s.uri === uri);
     if (index !== -1) {
       return;
@@ -342,9 +350,9 @@ export default class VocabSearchBar extends LitElement {
       return;
     }
 
-    // have to fetch the data for this uri
+    // have to fetch the data for this uri (which is a dataset-entity-uri, not the internal app uri)
     const filters = [];
-    filters.push(["filter[:uri:]", uri]);
+    filters.push(["filter[dataset-entity-uri]", uri]);
 
     for (const dataset of this.sourceDatasets) {
       filters.push(["filter[:or:][:exact:source-dataset]", dataset]);
@@ -364,6 +372,7 @@ export default class VocabSearchBar extends LitElement {
       ...selection.attributes,
       id: selection.id,
       uuid: selection.id,
+      uri: selection.datasetEntityUri
     };
     selection.prefLabel = this._convertPrefLabelsResourcesToMuSearch(
       selection["pref-label"]
