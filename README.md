@@ -1,28 +1,25 @@
 # Vocab Search Component
 
-## Installation
+## Installing
 
+### Script
+install via:
 ```
 $ npm install --save vocab-search-search-bar
 ```
 
-## Usage
-
-### Script
-
-Import as a module:
+#### Import as a module
 
 ```
 import 'vocab-search-search-bar'
 ```
 
-With a script tag:
-
+#### Use a script tag
+Import the module by refering to the file in a script tag.
 ```
 <script type="module" src="./node_modules/vocab-search-search-bar/dist/vocab-search-bar.js"></script>
 ```
-
-### Markup
+#### Markup
 
 ```html
 <vocab-search-bar
@@ -33,6 +30,27 @@ With a script tag:
 </vocab-search-bar>
 ```
 
+### Docker image
+This webcomponent can be build as a docker image via `docker build -t vocabsearch-webcomponent .`.
+
+This image will serve the build file under `/data/vocab-search-bar.js` in the service, making it possible to use e.g. `<script type="module" src="http://localhost/webcomponent/main.js"></script>`, or any other URL instead.
+
+To use this image under a mu-semtech stack with the given src above, add the service to the docker-compose file:
+```
+services:
+  webcomponent:
+    image: vocabsearch-webcomponent
+```
+
+And add a route to the mu-dispatcher service to serve the file via a specific path:
+```
+  get "/webcomponent/main.js", @any do
+    forward conn, [], "http://webcomponent/vocab-search-bar.js"
+  end
+```
+where `/webcomponent/main.js` is the path used in in the script tag (`http://localhost/webcomponent/main.js`) and `webcomponent` being the name of the service in the docker-compose file. 
+
+## API
 ### Attributes/properties
 
 | Name               | Type   | Default Value | Description                                                                                     |
@@ -48,7 +66,7 @@ With a script tag:
 | `show-console-error`      | string | true          |  Set if errors should be shown in the console. |
 | `single-select`      | string | true          |  Set if the selections should only allow one value at a time. |
 
-## Custom Events
+### Custom Events
 
 This Web Component dispatches semantic events upon user interaction. You can bind to these events with the standard DOM APIs, such as `addEventListener`. See MDN for more information about [DOM Events](https://developer.mozilla.org/en-US/docs/Web/Events) and [Custom Events](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent).
 
