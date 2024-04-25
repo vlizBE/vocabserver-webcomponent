@@ -26,7 +26,7 @@ jobs:
               run: echo ${{ steps.get_tag.outputs.TAG_NAME }}
             - name: Build the Docker image
               run: |
-                export REG_NS=ghcr.io/vlizbe/
+                export REG_NS=ghcr.io/
                 TAG_NAME=${GITHUB_REF#refs/tags/}  
                 # build tag is the same as tag name for releases if this matches the semver format else it is latest
                 # The string you want to check
