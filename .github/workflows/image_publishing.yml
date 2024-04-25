@@ -39,7 +39,7 @@ jobs:
                 fi
                 echo $BUILD_TAG
                 REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
-                echo $REG_NS$GITHUB_REPOSITORY_NAME:$BUILD_TAG
+                echo $REG_NS$REPOSITORY_NAME:$BUILD_TAG
 
-                docker build -t $REG_NS$GITHUB_REPOSITORY_NAME:$BUILD_TAG .
-                docker push $REG_NS$GITHUB_REPOSITORY_NAME:$BUILD_TAG
+                docker build -t $REG_NS$REPOSITORY_NAME:$BUILD_TAG .
+                docker push $REG_NS$REPOSITORY_NAME:$BUILD_TAG
