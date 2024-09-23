@@ -5,7 +5,7 @@ import "@vaadin/multi-select-combo-box";
 import { comboBoxRenderer } from "@vaadin/combo-box/lit";
 import { unsafeHTML } from "lit-html/directives/unsafe-html.js";
 
-const LABEL_LENGTH = 15;
+const LABEL_LENGTH = 18;
 export default class VocabSearchBar extends LitElement {
   static properties = {
     query: { reflect: true },
@@ -47,6 +47,10 @@ export default class VocabSearchBar extends LitElement {
     return css`
       vaadin-multi-select-combo-box {
         width: 100%;
+      }
+
+      vaadin-multi-select-combo-box-chip {
+        max-width: ${LABEL_LENGTH}ch;
       }
     `;
   }
@@ -134,7 +138,7 @@ export default class VocabSearchBar extends LitElement {
             }}"
             .selectedItems=${this.itemsSelected}
             @selected-items-changed=${this.selectItems}
-            item-label-path="trimmedPrefLabel"
+            item-label-path="firstPrefLabel"
             item-value-path="uri"
             item-id-path="uri"
             ${comboBoxRenderer(this._renderRow, [])}
@@ -153,7 +157,7 @@ export default class VocabSearchBar extends LitElement {
       return;
     }
     this.itemsSelected = [
-      ...e.detail.value.map((e) => this._addTrimmedLabel(e)),
+      ...e.detail.value.map((e) => this._addFirstLabel(e)),
     ];
     if (this.isSingleSelect) {
       const addedItem = this.itemsSelected.find((e) => e.uri === addedUris[0]);
@@ -169,12 +173,13 @@ export default class VocabSearchBar extends LitElement {
     this._selectionWasChanged = true;
   }
 
-  _addTrimmedLabel(item) {
+  /**
+   * For language-aware search, the returned values are objects, not strings.
+   * This adds a plain string as a property to the result object
+   */
+  _addFirstLabel(item) {
     const firstLabel = Object.entries(item.prefLabel)[0][1][0];
-    item["trimmedPrefLabel"] =
-      firstLabel.length < LABEL_LENGTH
-        ? firstLabel
-        : firstLabel.substring(0, LABEL_LENGTH) + "...";
+    item["firstPrefLabel"] = firstLabel;
     return item;
   }
 
@@ -283,7 +288,7 @@ export default class VocabSearchBar extends LitElement {
     // And make the existance of an internal URI transparant to the rest of the code.
     results.forEach((r) => {
       r.uri = r.datasetEntityUri;
-      this._addTrimmedLabel(r);
+      this._addFirstLabel(r);
     });
 
     // show selected items that are not part of the query at the bottom of the list
@@ -382,7 +387,7 @@ export default class VocabSearchBar extends LitElement {
     selection.prefLabel = this._convertPrefLabelsResourcesToMuSearch(
       selection["pref-label"]
     );
-    selection = this._addTrimmedLabel(selection);
+    selection = this._addFirstLabel(selection);
     this.itemsSelected.push(selection);
   }
 
