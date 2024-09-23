@@ -279,6 +279,7 @@ export default class VocabSearchBar extends LitElement {
     // And make the existance of an internal URI transparant to the rest of the code.
     results.forEach((r) => {
       r.uri = r.datasetEntityUri;
+      this._addTrimmedLabel(r);
     });
 
     // show selected items that are not part of the query at the bottom of the list
