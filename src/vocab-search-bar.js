@@ -217,6 +217,9 @@ export default class VocabSearchBar extends LitElement {
     return html`${unsafeHTML(originalString)}`;
   }
 
+  /**
+   * Construct filter parameter for mu-search call.
+   */
   createFilter() {
     let filter = {};
 
@@ -268,6 +271,7 @@ export default class VocabSearchBar extends LitElement {
         const entry = searchData.attributes;
         entry.id = searchData.id;
         entry.highlight = searchData.highlight;
+        this._filterResultByLang(entry);
         return entry;
       },
       this.searchEndpoint
@@ -425,6 +429,20 @@ export default class VocabSearchBar extends LitElement {
       searchPrefLabel[language].push(content);
     });
     return searchPrefLabel;
+  }
+
+  _filterResultByLang(result) {
+    if (this.languagesString) {
+      const parsedLanguages = this.languagesString.split(",");
+      result.prefLabel = Object.keys(result.prefLabel)
+        .filter(key => parsedLanguages.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = result.prefLabel[key];
+          return obj;
+        }, {});
+    } else {
+      return true;
+    }
   }
 }
 
