@@ -178,8 +178,11 @@ export default class VocabSearchBar extends LitElement {
    * This adds a plain string as a property to the result object
    */
   _addFirstLabel(item) {
-    const firstLabel = Object.entries(item.prefLabel)[0][1][0];
-    item["firstPrefLabel"] = firstLabel;
+    const entries = Object.entries(item.prefLabel);
+    if (entries.length) {
+      const firstLabel = entries[0][1][0];
+      item["firstPrefLabel"] = firstLabel;
+    }
     return item;
   }
 
