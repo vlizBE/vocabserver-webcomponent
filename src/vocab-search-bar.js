@@ -395,28 +395,53 @@ export default class VocabSearchBar extends LitElement {
   }
 
   async loadVocabAlias(uri) {
-    let filters = [["filter[:or:][:exact:alias]", uri]];
-    // mu-cl-resources does not handle :or: correctly if one is a :uri: filter.
-    // So doing both filters in one request like this is not possible:
-    // filters.push(["filter[:or:][:uri:]", uri]);
-
-    let vocab = (await this.fetchResource("vocabularies", filters)).data;
+    // Use public search API instead of restricted vocabularies endpoint
+    let filter = { ":exact:alias": uri };
+    
+    let fetchedResults = await search(
+      "vocabularies",
+      0, // page
+      1, // size - we only need one result
+      null, // sort
+      filter,
+      (searchData) => {
+        const entry = searchData.attributes;
+        entry.id = searchData.id;
+        return entry;
+      },
+      this.searchEndpoint
+    );
+    
+    let vocab = fetchedResults.content;
     if (vocab.length === 0) {
-      // try to fetch as the uri of a resource
-      filters = [["filter[:uri:]", uri]];
-      vocab = (await this.fetchResource("vocabularies", filters)).data;
+      // try to fetch as the uri of a vocabulary
+      filter = { ":uri:": uri };
+      fetchedResults = await search(
+        "vocabularies",
+        0, // page
+        1, // size
+        null, // sort
+        filter,
+        (searchData) => {
+          const entry = searchData.attributes;
+          entry.id = searchData.id;
+          return entry;
+        },
+        this.searchEndpoint
+      );
+      vocab = fetchedResults.content;
     }
 
     if (vocab.length > 0) {
-      vocab = { ...vocab[0], ...vocab[0].attributes };
-      if (vocab.uri === uri) {
+      const vocabEntry = vocab[0];
+      if (vocabEntry.uri === uri) {
         //nothing to do, dataset uri already set correctly
         return;
       }
-      if (vocab.alias === uri) {
+      if (vocabEntry.alias === uri) {
         //change the alias to actual uri
         const index = this.sourceVocabularies.findIndex((d) => d === uri);
-        this.sourceVocabularies[index] = vocab.uri;
+        this.sourceVocabularies[index] = vocabEntry.uri;
         return;
       }
     }
