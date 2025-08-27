@@ -395,29 +395,82 @@ export default class VocabSearchBar extends LitElement {
   }
 
   async loadVocabAlias(uri) {
-    let filters = [["filter[:or:][:exact:alias]", uri]];
-    // mu-cl-resources does not handle :or: correctly if one is a :uri: filter.
-    // So doing both filters in one request like this is not possible:
-    // filters.push(["filter[:or:][:uri:]", uri]);
-
-    let vocab = (await this.fetchResource("vocabularies", filters)).data;
-    if (vocab.length === 0) {
-      // try to fetch as the uri of a resource
-      filters = [["filter[:uri:]", uri]];
-      vocab = (await this.fetchResource("vocabularies", filters)).data;
-    }
-
-    if (vocab.length > 0) {
-      vocab = { ...vocab[0], ...vocab[0].attributes };
-      if (vocab.uri === uri) {
-        //nothing to do, dataset uri already set correctly
-        return;
+    try {
+      // Try the direct vocabularies API first (works with new backend smart routing)
+      let filters = [["filter[:or:][:exact:alias]", uri]];
+      let vocab = (await this.fetchResource("vocabularies", filters)).data;
+      
+      if (vocab.length === 0) {
+        // try to fetch as the uri of a vocabulary
+        filters = [["filter[:uri:]", uri]];
+        vocab = (await this.fetchResource("vocabularies", filters)).data;
       }
-      if (vocab.alias === uri) {
-        //change the alias to actual uri
-        const index = this.sourceVocabularies.findIndex((d) => d === uri);
-        this.sourceVocabularies[index] = vocab.uri;
-        return;
+
+      if (vocab.length > 0) {
+        vocab = { ...vocab[0], ...vocab[0].attributes };
+        if (vocab.uri === uri) {
+          //nothing to do, dataset uri already set correctly
+          return;
+        }
+        if (vocab.alias === uri) {
+          //change the alias to actual uri
+          const index = this.sourceVocabularies.findIndex((d) => d === uri);
+          this.sourceVocabularies[index] = vocab.uri;
+          return;
+        }
+      }
+    } catch (error) {
+      // Fallback to search API for older backends that don't support vocabulary alias lookup
+      console.warn('Direct vocabulary API failed, falling back to search API:', error);
+      
+      let filter = { ":exact:alias": uri };
+      
+      let fetchedResults = await search(
+        "vocabularies",
+        0, // page
+        1, // size - we only need one result
+        null, // sort
+        filter,
+        (searchData) => {
+          const entry = searchData.attributes;
+          entry.id = searchData.id;
+          return entry;
+        },
+        this.searchEndpoint
+      );
+      
+      let vocab = fetchedResults.content;
+      if (vocab.length === 0) {
+        // try to fetch as the uri of a vocabulary
+        filter = { ":uri:": uri };
+        fetchedResults = await search(
+          "vocabularies",
+          0, // page
+          1, // size
+          null, // sort
+          filter,
+          (searchData) => {
+            const entry = searchData.attributes;
+            entry.id = searchData.id;
+            return entry;
+          },
+          this.searchEndpoint
+        );
+        vocab = fetchedResults.content;
+      }
+
+      if (vocab.length > 0) {
+        const vocabEntry = vocab[0];
+        if (vocabEntry.uri === uri) {
+          //nothing to do, dataset uri already set correctly
+          return;
+        }
+        if (vocabEntry.alias === uri) {
+          //change the alias to actual uri
+          const index = this.sourceVocabularies.findIndex((d) => d === uri);
+          this.sourceVocabularies[index] = vocabEntry.uri;
+          return;
+        }
       }
     }
 
