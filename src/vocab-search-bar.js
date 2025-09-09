@@ -396,14 +396,14 @@ export default class VocabSearchBar extends LitElement {
 
   async loadVocabAlias(uri) {
     try {
-      // Try the direct vocabularies API first (works with new backend smart routing)
+      // Use the dedicated vocabularies-by-alias endpoint for alias lookups
       let filters = [["filter[:or:][:exact:alias]", uri]];
-      let vocab = (await this.fetchResource("vocabularies", filters)).data;
+      let vocab = (await this.fetchResource("vocabularies-by-alias", filters)).data;
       
       if (vocab.length === 0) {
-        // try to fetch as the uri of a vocabulary
+        // try to fetch as the uri of a vocabulary using the same endpoint
         filters = [["filter[:uri:]", uri]];
-        vocab = (await this.fetchResource("vocabularies", filters)).data;
+        vocab = (await this.fetchResource("vocabularies-by-alias", filters)).data;
       }
 
       if (vocab.length > 0) {
@@ -421,7 +421,7 @@ export default class VocabSearchBar extends LitElement {
       }
     } catch (error) {
       // Fallback to search API for older backends that don't support vocabulary alias lookup
-      console.warn('Direct vocabulary API failed, falling back to search API:', error);
+      console.warn('Vocabulary alias lookup API failed, falling back to search API:', error);
       
       let filter = { ":exact:alias": uri };
       
