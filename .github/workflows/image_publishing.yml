@@ -1,6 +1,7 @@
 name: Docker Image Build & Push to ghrc.io
 
 on:
+    workflow_dispatch:
     push:
         branches: [ "main" ]
         tags: [ "v*.*.*" ]
