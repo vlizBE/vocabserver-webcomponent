@@ -31,7 +31,7 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@web/dev-server": "^0.4.3",
-    "release-it": "^15.6.0",
+    "release-it": "^19.0.5",
     "rollup": "^3.17.2"
   }
 }
